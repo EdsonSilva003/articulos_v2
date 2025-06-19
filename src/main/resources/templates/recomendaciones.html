@@ -6,7 +6,6 @@
     <title>Recomendaciones - Sistema de Artículos</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        /* [Mantener todos los estilos CSS existentes] */
         * {
             margin: 0;
             padding: 0;
@@ -243,7 +242,6 @@
             padding: 20px;
             border: 1px solid rgba(255, 255, 255, 0.3);
             position: relative;
-            cursor: pointer;
         }
 
         .article-card:hover {
@@ -379,6 +377,12 @@
             box-shadow: 0 8px 25px rgba(158, 158, 158, 0.4);
         }
 
+        .action-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
         /* Razones de recomendación */
         .recommendation-reason {
             background: rgba(102, 126, 234, 0.1);
@@ -428,6 +432,23 @@
 
         body.dark-mode .empty-state h3 {
             color: #bb86fc;
+        }
+
+        /* Mensaje de error */
+        .error-message {
+            background: rgba(244, 67, 54, 0.1);
+            border: 1px solid rgba(244, 67, 54, 0.3);
+            color: #d32f2f;
+            padding: 1rem;
+            border-radius: 12px;
+            margin: 1rem 0;
+            text-align: center;
+        }
+
+        body.dark-mode .error-message {
+            background: rgba(244, 67, 54, 0.2);
+            border: 1px solid rgba(244, 67, 54, 0.4);
+            color: #ff6b6b;
         }
 
         /* Botón de modo oscuro */
@@ -527,6 +548,21 @@
         .article-card:nth-child(10) { animation-delay: 1.0s; }
         .article-card:nth-child(11) { animation-delay: 1.1s; }
         .article-card:nth-child(12) { animation-delay: 1.2s; }
+
+        /* Loading spinner */
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #ffffff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
@@ -561,20 +597,26 @@
     </div>
 
     <div class="container">
+        <!-- Mostrar errores si existen -->
+        <div th:if="${error}" class="error-message">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span th:text="${error}">Error al cargar recomendaciones</span>
+        </div>
+
         <!-- Estadísticas de recomendación -->
         <div class="recommendation-stats">
             <div class="stat-card">
                 <div class="stat-icon">
                     <i class="fas fa-magic"></i>
                 </div>
-                <div class="stat-number" th:text="${totalRecomendaciones ?: 0}">0</div>
+                <div class="stat-number" th:text="${totalRecomendaciones != null ? totalRecomendaciones : 0}">0</div>
                 <div class="stat-label">Recomendaciones</div>
             </div>
             <div class="stat-card">
                 <div class="stat-icon">
                     <i class="fas fa-heart"></i>
                 </div>
-                <div class="stat-number" th:text="${totalFavoritos ?: 0}">0</div>
+                <div class="stat-number" th:text="${totalFavoritos != null ? totalFavoritos : 0}">0</div>
                 <div class="stat-label">Tus Favoritos</div>
             </div>
             <div class="stat-card">
@@ -597,69 +639,67 @@
         <div class="recommendation-section">
             <h2 class="section-title">
                 <i class="fas fa-sparkles"></i>
-                <span th:text="${tipoRecomendacion ?: 'Recomendaciones para ti'}">Recomendaciones para ti</span>
+                <span th:text="${tipoRecomendacion != null ? tipoRecomendacion : 'Recomendaciones para ti'}">Recomendaciones para ti</span>
             </h2>
             <p class="section-subtitle">
                 Artículos seleccionados especialmente basados en tus intereses y favoritos
             </p>
 
-            <!-- **MEJORADO**: Grid de artículos recomendados con funcionalidad completa -->
-            <div class="articles-grid" id="articlesGrid">
-                <div th:each="articulo, iterStat : ${articulos}" 
-                     class="article-card" 
-                     th:data-filter="todas">
+            <!-- Grid de artículos recomendados -->
+            <div th:if="${articulos != null && !articulos.isEmpty()}" class="articles-grid" id="articlesGrid">
+                <div th:each="articulo, iterStat : ${articulos}" class="article-card">
                     
                     <!-- Puntuación de recomendación -->
                     <div class="recommendation-score">
                         <i class="fas fa-star"></i>
-                        <span th:text="${articulo.scoreRecomendacion ?: '85'}">85</span>%
+                        <span th:text="${articulo.scoreRecomendacion != null ? articulo.scoreRecomendacion : '85'}">85</span>%
                     </div>
 
-                    <h3 class="article-title" th:text="${articulo.titulo}">Título del artículo</h3>
+                    <h3 class="article-title" th:text="${articulo.titulo != null ? articulo.titulo : 'Título no disponible'}">Título del artículo</h3>
                     
-                    <p th:if="${articulo.autores}" class="article-author">
+                    <p th:if="${articulo.autores != null && !#strings.isEmpty(articulo.autores)}" class="article-author">
                         <i class="fas fa-user-edit"></i>
                         <span><strong>Autores:</strong> <span th:text="${articulo.autores}"></span></span>
                     </p>
                     
-                    <p th:if="${articulo.anio}" class="article-year">
+                    <p th:if="${articulo.anio != null && !#strings.isEmpty(articulo.anio)}" class="article-year">
                         <i class="fas fa-calendar-alt"></i>
                         <span><strong>Año:</strong> <span th:text="${articulo.anio}"></span></span>
                     </p>
                     
-                    <div th:if="${articulo.categoria}" class="article-category">
+                    <div th:if="${articulo.categoria != null && !#strings.isEmpty(articulo.categoria)}" class="article-category">
                         <i class="fas fa-tag"></i>
                         <span th:text="${articulo.categoria}"></span>
                     </div>
                     
-                    <p th:if="${articulo.contenido}" class="article-description">
+                    <p th:if="${articulo.contenido != null && !#strings.isEmpty(articulo.contenido)}" class="article-description">
                         <span th:text="${articulo.contenido}"></span>
                     </p>
                     
                     <!-- Razón de la recomendación -->
-                    <div th:if="${articulo.razonRecomendacion}" class="recommendation-reason">
+                    <div th:if="${articulo.razonRecomendacion != null && !#strings.isEmpty(articulo.razonRecomendacion)}" class="recommendation-reason">
                         <i class="fas fa-lightbulb"></i>
                         <span th:text="${articulo.razonRecomendacion}">Recomendado porque te gustan artículos similares</span>
                     </div>
                     
                     <div class="article-actions">
-                        <!-- **CORREGIDO**: Cargar artículo en cache antes de ver detalles -->
-                        <button class="action-btn" th:onclick="'cargarYVerArticulo(' + ${articulo.id} + ', \'' + ${articulo.titulo} + '\', \'' + ${articulo.autores} + '\', \'' + ${articulo.anio} + '\', \'' + ${articulo.categoria} + '\', \'' + ${articulo.contenido} + '\', \'' + ${articulo.url ?: ''} + '\')'">
+                        <!-- Ver detalles con JavaScript mejorado -->
+                        <button class="action-btn" th:onclick="'verDetallesArticulo(' + ${articulo.id} + ')'">
                             <i class="fas fa-eye"></i>
                             Ver Detalles
                         </button>
                         
-                        <!-- Agregar/Quitar favoritos -->
-                        <button th:if="${!articulo.esFavorito}" 
+                        <!-- Agregar/Quitar favoritos con JavaScript mejorado -->
+                        <button th:if="${articulo.esFavorito == null || !articulo.esFavorito}" 
                                 class="action-btn favorite"
-                                th:onclick="'toggleFavorito(' + ${articulo.id} + ', true, this, \'' + ${articulo.titulo} + '\', \'' + ${articulo.autores} + '\', \'' + ${articulo.anio} + '\', \'' + ${articulo.categoria} + '\', \'' + ${articulo.url ?: ''} + '\')'">
+                                th:onclick="'toggleFavoritoSeguro(' + ${articulo.id} + ', true, this)'">
                             <i class="fas fa-heart"></i>
                             Agregar
                         </button>
                         
-                        <button th:if="${articulo.esFavorito}" 
+                        <button th:if="${articulo.esFavorito != null && articulo.esFavorito}" 
                                 class="action-btn secondary"
-                                th:onclick="'toggleFavorito(' + ${articulo.id} + ', false, this, \'' + ${articulo.titulo} + '\', \'' + ${articulo.autores} + '\', \'' + ${articulo.anio} + '\', \'' + ${articulo.categoria} + '\', \'' + ${articulo.url ?: ''} + '\')'">
+                                th:onclick="'toggleFavoritoSeguro(' + ${articulo.id} + ', false, this)'">
                             <i class="fas fa-heart-broken"></i>
                             Quitar
                         </button>
@@ -667,7 +707,7 @@
                 </div>
             </div>
 
-            <!-- Estado vacío -->
+            <!-- Estado vacío mejorado -->
             <div th:if="${articulos == null || articulos.isEmpty()}" class="empty-state">
                 <i class="fas fa-magic"></i>
                 <h3>No hay recomendaciones disponibles</h3>
@@ -689,94 +729,79 @@
     </div>
 
     <script>
-        // Modo oscuro
+        // Variables globales para el estado
+        let darkMode = localStorage.getItem('darkMode') === 'true';
+
+        // Modo oscuro mejorado
         const darkModeToggle = document.getElementById('darkModeToggle');
         const darkModeIcon = document.getElementById('darkModeIcon');
         const body = document.body;
 
-        // Verificar preferencia guardada
-        const isDarkMode = localStorage.getItem('darkMode') === 'true';
-        if (isDarkMode) {
+        // Aplicar modo oscuro inicial
+        if (darkMode) {
             body.classList.add('dark-mode');
             darkModeIcon.classList.remove('fa-moon');
             darkModeIcon.classList.add('fa-sun');
         }
 
+        // Toggle del modo oscuro
         darkModeToggle.addEventListener('click', () => {
-            body.classList.toggle('dark-mode');
-            const isDark = body.classList.contains('dark-mode');
+            darkMode = !darkMode;
             
-            if (isDark) {
+            if (darkMode) {
+                body.classList.add('dark-mode');
                 darkModeIcon.classList.remove('fa-moon');
                 darkModeIcon.classList.add('fa-sun');
             } else {
+                body.classList.remove('dark-mode');
                 darkModeIcon.classList.remove('fa-sun');
                 darkModeIcon.classList.add('fa-moon');
             }
             
-            localStorage.setItem('darkMode', isDark);
+            localStorage.setItem('darkMode', darkMode);
         });
 
-        // **NUEVA FUNCIÓN**: Cargar artículo en cache antes de ver detalles
-        function cargarYVerArticulo(id, titulo, autores, anio, categoria, contenido, url) {
-            console.log('🔄 Cargando artículo en cache antes de ver detalles:', id);
+        // Función segura para ver detalles del artículo
+        function verDetallesArticulo(id) {
+            console.log('🔍 Ver detalles del artículo:', id);
             
-            // Limpiar las comillas de los datos
-            titulo = titulo.replace(/'/g, "\\'");
-            autores = autores.replace(/'/g, "\\'");
-            contenido = contenido.replace(/'/g, "\\'");
+            if (!id) {
+                console.error('❌ ID de artículo no válido');
+                mostrarMensaje('Error: ID de artículo no válido', 'error');
+                return;
+            }
             
-            // Cargar en cache del servidor
-            fetch('/articulos/cargar-en-cache', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    id: id,
-                    titulo: titulo,
-                    autores: autores,
-                    anio: anio,
-                    categoria: categoria,
-                    contenido: contenido,
-                    url: url
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    console.log('✅ Artículo cargado en cache exitosamente');
-                    // Redirigir a ver detalles
-                    window.location.href = `/articulos/ver/${id}`;
-                } else {
-                    console.error('❌ Error cargando artículo en cache:', data.error);
-                    // Intentar ir directamente (fallback)
-                    window.location.href = `/articulos/ver/${id}`;
-                }
-            })
-            .catch(error => {
-                console.error('❌ Error de red:', error);
-                // Intentar ir directamente (fallback)
+            try {
                 window.location.href = `/articulos/ver/${id}`;
-            });
+            } catch (error) {
+                console.error('❌ Error navegando al artículo:', error);
+                mostrarMensaje('Error al cargar el artículo', 'error');
+            }
         }
 
-        // **MEJORADA**: Toggle favorito con carga en cache
-        function toggleFavorito(articuloId, agregar, button, titulo, autores, anio, categoria, url) {
+        // Función segura para toggle de favoritos
+        function toggleFavoritoSeguro(articuloId, agregar, button) {
             console.log('❤️ Toggle favorito:', articuloId, agregar ? 'AGREGAR' : 'QUITAR');
             
-            // Primero cargar en cache si es agregar
-            if (agregar) {
-                cargarArticuloEnCache(articuloId, titulo, autores, anio, categoria, url);
+            if (!articuloId) {
+                console.error('❌ ID de artículo no válido');
+                mostrarMensaje('Error: ID de artículo no válido', 'error');
+                return;
             }
+            
+            if (!button) {
+                console.error('❌ Botón no válido');
+                return;
+            }
+            
+            // Deshabilitar botón durante la operación
+            button.disabled = true;
+            const originalHTML = button.innerHTML;
+            button.innerHTML = '<span class="loading"></span> Procesando...';
             
             const actionUrl = agregar ? 
                 `/articulos/favorito/agregar/${articuloId}` : 
                 `/articulos/favorito/eliminar/${articuloId}`;
-            
-            button.disabled = true;
-            const originalHTML = button.innerHTML;
-            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Procesando...';
             
             fetch(actionUrl, {
                 method: 'POST',
@@ -787,23 +812,17 @@
             .then(response => {
                 if (response.ok) {
                     // Actualizar UI
-                    const icon = agregar ? 'fa-heart-broken' : 'fa-heart';
-                    const text = agregar ? 'Quitar' : 'Agregar';
-                    const newClass = agregar ? 'action-btn secondary' : 'action-btn favorite';
-                    
-                    button.className = newClass;
-                    button.innerHTML = `<i class="fas ${icon}"></i> ${text}`;
-                    button.onclick = () => toggleFavorito(articuloId, !agregar, button, titulo, autores, anio, categoria, url);
-                    
-                    // Mostrar mensaje de éxito
-                    mostrarMensaje(agregar ? 'Artículo agregado a favoritos' : 'Artículo removido de favoritos', 'success');
-                    
+                    actualizarBotonFavorito(button, !agregar);
+                    mostrarMensaje(
+                        agregar ? 'Artículo agregado a favoritos' : 'Artículo removido de favoritos', 
+                        'success'
+                    );
                 } else {
-                    throw new Error('Error en la respuesta del servidor');
+                    throw new Error(`Error HTTP: ${response.status}`);
                 }
             })
             .catch(error => {
-                console.error('Error:', error);
+                console.error('❌ Error en toggle favorito:', error);
                 button.innerHTML = originalHTML;
                 mostrarMensaje('Error al procesar la solicitud', 'error');
             })
@@ -812,42 +831,30 @@
             });
         }
 
-        // Función auxiliar para cargar artículo en cache
-        function cargarArticuloEnCache(id, titulo, autores, anio, categoria, url) {
-            fetch('/articulos/cargar-en-cache', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    id: id,
-                    titulo: titulo,
-                    autores: autores,
-                    anio: anio,
-                    categoria: categoria,
-                    contenido: `Artículo recomendado en el área de ${categoria}. Investigación especializada con enfoques metodológicos avanzados.`,
-                    url: url
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log('✅ Artículo cargado en cache para favoritos');
-            })
-            .catch(error => {
-                console.error('❌ Error cargando en cache:', error);
-            });
+        // Función para actualizar el botón de favorito
+        function actualizarBotonFavorito(button, esFavorito) {
+            if (esFavorito) {
+                button.className = 'action-btn secondary';
+                button.innerHTML = '<i class="fas fa-heart-broken"></i> Quitar';
+                button.onclick = () => toggleFavoritoSeguro(
+                    button.getAttribute('data-id'), 
+                    false, 
+                    button
+                );
+            } else {
+                button.className = 'action-btn favorite';
+                button.innerHTML = '<i class="fas fa-heart"></i> Agregar';
+                button.onclick = () => toggleFavoritoSeguro(
+                    button.getAttribute('data-id'), 
+                    true, 
+                    button
+                );
+            }
         }
 
-        // Mostrar mensajes de notificación
+        // Función para mostrar mensajes
         function mostrarMensaje(mensaje, tipo) {
             const notification = document.createElement('div');
-            notification.className = `notification ${tipo}`;
-            notification.innerHTML = `
-                <i class="fas fa-${tipo === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
-                <span>${mensaje}</span>
-            `;
-            
-            // Estilos para la notificación
             notification.style.cssText = `
                 position: fixed;
                 top: 20px;
@@ -864,6 +871,12 @@
                 box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
                 transform: translateX(100%);
                 transition: transform 0.3s ease;
+                max-width: 300px;
+            `;
+            
+            notification.innerHTML = `
+                <i class="fas fa-${tipo === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+                <span>${mensaje}</span>
             `;
             
             document.body.appendChild(notification);
@@ -884,21 +897,36 @@
             }, 3000);
         }
 
-        // Actualizar recomendaciones
+        // Función para actualizar recomendaciones
         function actualizarRecomendaciones() {
             const refreshBtn = document.getElementById('refreshBtn');
-            refreshBtn.disabled = true;
-            refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Actualizando...';
+            if (!refreshBtn) return;
             
-            // Simular actualización con recarga de página
+            refreshBtn.disabled = true;
+            refreshBtn.innerHTML = '<span class="loading"></span> Actualizando...';
+            
             setTimeout(() => {
                 window.location.reload();
             }, 1500);
         }
 
-        // Efectos visuales y animaciones
+        // Inicialización de la página
         document.addEventListener('DOMContentLoaded', function() {
-            // Efecto parallax suave en el fondo
+            console.log('🚀 Sistema de recomendaciones cargado');
+            
+            // Agregar data-id a los botones para funcionalidad
+            const buttons = document.querySelectorAll('.action-btn.favorite, .action-btn.secondary');
+            buttons.forEach(button => {
+                const onclick = button.getAttribute('onclick');
+                if (onclick) {
+                    const match = onclick.match(/toggleFavoritoSeguro\((\d+),/);
+                    if (match) {
+                        button.setAttribute('data-id', match[1]);
+                    }
+                }
+            });
+            
+            // Efecto parallax suave
             document.addEventListener('mousemove', (e) => {
                 const moveX = (e.clientX * -1 / 30);
                 const moveY = (e.clientY * -1 / 30);
@@ -917,22 +945,11 @@
                 }, index * 100);
             });
 
-            // Efecto hover mejorado para las tarjetas
-            cards.forEach(card => {
-                card.addEventListener('mouseenter', function() {
-                    this.style.transform = 'translateY(-8px) scale(1.02)';
-                });
-                
-                card.addEventListener('mouseleave', function() {
-                    this.style.transform = 'translateY(0) scale(1)';
-                });
-            });
-
             // Contador animado para las estadísticas
             const statNumbers = document.querySelectorAll('.stat-number');
             statNumbers.forEach(stat => {
                 const target = parseInt(stat.textContent) || 0;
-                if (target > 0) {
+                if (target > 0 && target < 1000) {
                     animateCounter(stat, target);
                 }
             });
@@ -953,71 +970,15 @@
             }, 30);
         }
 
-        // Atajo de teclado para actualizar (R)
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'r' || e.key === 'R') {
-                if (!e.ctrlKey && !e.metaKey) {
-                    e.preventDefault();
-                    actualizarRecomendaciones();
-                }
-            }
-        });
-
-        // Debug para verificar funcionalidad
-        console.log('🚀 Sistema de recomendaciones cargado');
-        console.log('📊 Artículos disponibles:', document.querySelectorAll('.article-card').length);
-        console.log('🔧 Funciones disponibles: cargarYVerArticulo, toggleFavorito, actualizarRecomendaciones');
-
-        // Detectar si venimos de una recomendación
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('from') === 'home') {
-            console.log('👋 Usuario viene desde home - primera vez viendo recomendaciones');
-            // Podrías agregar un mensaje especial aquí
-        }
-
-        // Precargar funcionalidad para mejorar UX
-        window.addEventListener('load', () => {
-            // Precargar íconos de Font Awesome
-            const preloadIcons = ['fa-spinner', 'fa-check-circle', 'fa-exclamation-circle'];
-            preloadIcons.forEach(icon => {
-                const i = document.createElement('i');
-                i.className = `fas ${icon}`;
-                i.style.display = 'none';
-                document.body.appendChild(i);
-                setTimeout(() => document.body.removeChild(i), 100);
-            });
-        });
-
-        // Función de emergencia para casos donde falle la carga en cache
-        function irDirectoAArticulo(id) {
-            console.log('🆘 Función de emergencia - ir directo al artículo:', id);
-            window.location.href = `/articulos/ver/${id}`;
-        }
-
-        // Monitoreo de errores para debugging
+        // Manejo de errores globales
         window.addEventListener('error', (e) => {
             console.error('❌ Error en recomendaciones:', e.error);
         });
 
-        // Función para recargar recomendaciones sin refrescar página (opcional)
-        function recargarRecomendacionesAjax() {
-            fetch('/recomendaciones', {
-                method: 'GET',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
-            .then(response => response.text())
-            .then(html => {
-                // Aquí podrías actualizar solo la sección de artículos
-                console.log('🔄 Recomendaciones actualizadas vía AJAX');
-            })
-            .catch(error => {
-                console.error('❌ Error actualizando recomendaciones:', error);
-                // Fallback a recarga completa
-                window.location.reload();
-            });
-        }
+        // Prevenir errores de Thymeleaf en JavaScript
+        window.addEventListener('unhandledrejection', (e) => {
+            console.error('❌ Promesa rechazada:', e.reason);
+        });
     </script>
 </body>
 </html>

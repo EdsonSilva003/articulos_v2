@@ -592,4 +592,129 @@ public class ArticuloController {
             return Map.of("error", "Error al precargar artículos: " + e.getMessage());
         }
     }
+    // Agregar este método al ArticuloController.java existente
+
+/**
+ * NUEVO MÉTODO: Crear artículo dinámico desde recomendaciones
+ * Este método maneja la creación de artículos que vienen de recomendaciones
+ */
+@PostMapping("/crear-desde-recomendacion")
+@ResponseBody
+public Map<String, Object> crearArticuloDesdeRecomendacion(@RequestBody Map<String, Object> datos) {
+    try {
+        Long id = Long.valueOf(datos.get("id").toString());
+        System.out.println("📝 Creando artículo desde recomendación - ID: " + id);
+        
+        Usuario usuario = getUsuarioActual();
+        if (usuario == null) {
+            return Map.of("error", "Usuario no autenticado");
+        }
+        
+        // Verificar si ya existe en cache
+        if (articulosCache.containsKey(id)) {
+            System.out.println("✅ Artículo ya existe en cache");
+            return Map.of("success", true, "mensaje", "Artículo ya disponible");
+        }
+        
+        // Crear artículo desde datos de recomendación
+        articulo art = new articulo();
+        art.setId(id);
+        art.setTitulo(obtenerStringSeguro(datos, "titulo", "Artículo Recomendado"));
+        art.setAutores(obtenerStringSeguro(datos, "autores", "Autor no especificado"));
+        art.setAnio(obtenerStringSeguro(datos, "anio", "2024"));
+        art.setCategoria(obtenerStringSeguro(datos, "categoria", "Investigación"));
+        art.setContenido(obtenerStringSeguro(datos, "contenido", "Contenido no disponible"));
+        art.setUrl(obtenerStringSeguro(datos, "url", ""));
+        art.setDoi("10.1000/recomendacion." + id);
+        art.setPuntuacion(75.0 + (id % 20));
+        
+        // Verificar si es favorito
+        boolean esFavorito = articuloFavoritoRepository.existsByArticuloIdAndUsuarioId(id, usuario.getId());
+        art.setEsFavorito(esFavorito);
+        
+        // Guardar en cache
+        articulosCache.put(id, art);
+        
+        System.out.println("✅ Artículo creado desde recomendación exitosamente");
+        return Map.of("success", true, "mensaje", "Artículo creado", "esFavorito", esFavorito);
+        
+    } catch (Exception e) {
+        System.err.println("❌ Error creando artículo desde recomendación: " + e.getMessage());
+        e.printStackTrace();
+        return Map.of("error", "Error al crear artículo: " + e.getMessage());
+    }
+}
+
+/**
+ * Método auxiliar para obtener strings de manera segura
+ */
+private String obtenerStringSeguro(Map<String, Object> datos, String clave, String valorPorDefecto) {
+    try {
+        Object valor = datos.get(clave);
+        if (valor != null && !valor.toString().trim().isEmpty()) {
+            return valor.toString().trim();
+        }
+        return valorPorDefecto;
+    } catch (Exception e) {
+        return valorPorDefecto;
+    }
+}
+
+/**
+ * MÉTODO MEJORADO: Versión más robusta del método para ver artículos
+ * Reemplaza o mejora el método verDetallesArticulo existente
+ */
+@GetMapping("/ver/{id}")
+public String verDetallesArticuloMejorado(@PathVariable("id") Long id, Model model) {
+    System.out.println("🔍 VER DETALLES MEJORADO - ID: " + id);
+    
+    try {
+        Usuario usuario = getUsuarioActual();
+        
+        if (usuario == null) {
+            model.addAttribute("error", "Error: Usuario no autenticado.");
+            model.addAttribute("id", id);
+            return "viewPdf";
+        }
+        
+        // Buscar artículo en cache
+        articulo articuloSeleccionado = articulosCache.get(id);
+        System.out.println("  - Artículo en cache: " + (articuloSeleccionado != null ? "SÍ" : "NO"));
+        
+        // Si no está en cache, intentar crear dinámicamente
+        if (articuloSeleccionado == null) {
+            articuloSeleccionado = crearArticuloDinamico(id, usuario.getId());
+            
+            if (articuloSeleccionado != null) {
+                articulosCache.put(id, articuloSeleccionado);
+                System.out.println("  - Artículo creado dinámicamente: " + articuloSeleccionado.getTitulo());
+            }
+        }
+        
+        if (articuloSeleccionado != null) {
+            // Verificar si es favorito
+            boolean esFavorito = articuloFavoritoRepository.existsByArticuloIdAndUsuarioId(id, usuario.getId());
+            articuloSeleccionado.setEsFavorito(esFavorito);
+            
+            model.addAttribute("articulo", articuloSeleccionado);
+            model.addAttribute("mensaje", "Artículo cargado correctamente");
+            
+            System.out.println("✅ Artículo: " + articuloSeleccionado.getTitulo());
+            System.out.println("  - Es favorito: " + esFavorito);
+        } else {
+            System.err.println("❌ No se pudo crear/encontrar el artículo");
+            model.addAttribute("error", "El artículo no se encontró. Puede que haya sido eliminado o no esté disponible.");
+        }
+        
+        model.addAttribute("id", id);
+        
+    } catch (Exception e) {
+        System.err.println("❌ Error al cargar artículo: " + e.getMessage());
+        e.printStackTrace();
+        model.addAttribute("error", "Error al cargar el artículo: " + e.getMessage());
+        model.addAttribute("id", id);
+    }
+    
+    return "viewPdf";
+}
 }
