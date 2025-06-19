@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administración de Usuarios - Sistema de Recomendaciones</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            transition: all 0.3s ease;
+        }
+
+        /* Modo Oscuro */
+        body.dark-mode {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        }
+
+        body.dark-mode .header {
+            background: rgba(30, 30, 30, 0.9);
+            border-bottom: 1px solid rgba(187, 134, 252, 0.2);
+        }
+
+        body.dark-mode .header h1,
+        body.dark-mode .header p {
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .container {
+            background: rgba(30, 30, 30, 0.95);
+        }
+
+        body.dark-mode .admin-header h2 {
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .btn-nuevo {
+            background: linear-gradient(135deg, #bb86fc, #6200ea);
+        }
+
+        body.dark-mode .table-container {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(187, 134, 252, 0.2);
+        }
+
+        body.dark-mode .table {
+            background: transparent;
+        }
+
+        body.dark-mode .table th {
+            background: rgba(187, 134, 252, 0.1);
+            color: #bb86fc;
+            border-bottom: 2px solid rgba(187, 134, 252, 0.3);
+        }
+
+        body.dark-mode .table td {
+            color: #e0e0e0;
+            border-bottom: 1px solid rgba(187, 134, 252, 0.1);
+        }
+
+        body.dark-mode .table tbody tr:hover {
+            background: rgba(187, 134, 252, 0.05);
+        }
+
+        body.dark-mode .avatar {
+            border: 2px solid rgba(187, 134, 252, 0.3);
+        }
+
+        body.dark-mode .role-tag.admin-role {
+            background: linear-gradient(135deg, #bb86fc, #6200ea);
+        }
+
+        body.dark-mode .role-tag.user-role {
+            background: #455a64;
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .btn-edit {
+            background: linear-gradient(135deg, #bb86fc, #6200ea);
+        }
+
+        body.dark-mode .btn-delete {
+            background: #ff6b6b;
+        }
+
+        body.dark-mode .btn-back {
+            background: #455a64;
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .btn-back:hover {
+            background: #546e7a;
+        }
+
+        body.dark-mode .modal {
+            background: rgba(0, 0, 0, 0.8);
+        }
+
+        body.dark-mode .modal-content {
+            background: rgba(30, 30, 30, 0.95);
+            border: 1px solid rgba(187, 134, 252, 0.3);
+        }
+
+        body.dark-mode .modal-content h3 {
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .modal-content p {
+            color: #b0b0b0;
+        }
+
+        body.dark-mode .btn-secondary {
+            background: #455a64;
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .btn-secondary:hover {
+            background: #546e7a;
+        }
+
+        body.dark-mode .btn-danger {
+            background: #ff6b6b;
+        }
+
+        body.dark-mode .mensaje-exito {
+            background: rgba(76, 175, 80, 0.2);
+            border: 1px solid rgba(76, 175, 80, 0.4);
+            color: #81c784;
+        }
+
+        body.dark-mode .mensaje-error {
+            background: rgba(244, 67, 54, 0.2);
+            border: 1px solid rgba(244, 67, 54, 0.4);
+            color: #ff6b6b;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 1.5rem 0;
+            text-align: center;
+            color: white;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 300;
+            letter-spacing: 1px;
+            margin: 0;
+        }
+
+        .header p {
+            font-size: 1rem;
+            opacity: 0.9;
+            margin-top: 0.5rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            margin-top: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid rgba(102, 126, 234, 0.1);
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .admin-header h2 {
+            color: #333;
+            font-size: 1.8rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 10px 16px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-nuevo {
+            background: linear-gradient(135deg, #4caf50, #2e7d32);
+            color: white;
+            box-shadow: 0 8px 25px rgba(76, 175, 80, 0.3);
+            padding: 12px 24px;
+            font-size: 1rem;
+        }
+
+        .btn-nuevo:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 35px rgba(76, 175, 80, 0.4);
+        }
+
+        .btn-edit {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-edit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-delete {
+            background: linear-gradient(135deg, #f44336, #d32f2f);
+            color: white;
+            box-shadow: 0 4px 15px rgba(244, 67, 54, 0.3);
+        }
+
+        .btn-delete:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(244, 67, 54, 0.4);
+        }
+
+        .btn-back {
+            background: linear-gradient(135deg, #607d8b, #455a64);
+            color: white;
+            padding: 12px 24px;
+            font-size: 16px;
+            box-shadow: 0 8px 25px rgba(96, 125, 139, 0.3);
+        }
+
+        .btn-back:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 35px rgba(96, 125, 139, 0.4);
+        }
+
+        .btn-secondary {
+            background: #607d8b;
+            color: white;
+            box-shadow: 0 4px 15px rgba(96, 125, 139, 0.3);
+        }
+
+        .btn-secondary:hover {
+            background: #546e7a;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(96, 125, 139, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #f44336, #d32f2f);
+            color: white;
+            box-shadow: 0 4px 15px rgba(244, 67, 54, 0.3);
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(244, 67, 54, 0.4);
+        }
+
+        .mensaje {
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 12px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .mensaje-exito {
+            background: rgba(76, 175, 80, 0.1);
+            border: 1px solid rgba(76, 175, 80, 0.3);
+            color: #2e7d32;
+        }
+
+        .mensaje-error {
+            background: rgba(244, 67, 54, 0.1);
+            border: 1px solid rgba(244, 67, 54, 0.3);
+            color: #d32f2f;
+        }
+
+        .table-container {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(102, 126, 234, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .table th {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid rgba(102, 126, 234, 0.3);
+        }
+
+        .table td {
+            padding: 15px;
+            border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+            color: #333;
+            vertical-align: middle;
+        }
+
+        .table tbody tr {
+            transition: all 0.3s ease;
+        }
+
+        .table tbody tr:hover {
+            background: rgba(102, 126, 234, 0.05);
+            transform: scale(1.01);
+        }
+
+        .user-image {
+            text-align: center;
+        }
+
+        .avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            font-size: 1.2rem;
+            border: 2px solid rgba(102, 126, 234, 0.3);
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        .role-tags {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .role-tag {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .role-tag.admin-role {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+        }
+
+        .role-tag.user-role {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .navigation-buttons {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(102, 126, 234, 0.1);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            margin: auto;
+            padding: 2rem;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            animation: modalFadeIn 0.3s ease-out;
+        }
+
+        .modal-content h3 {
+            color: #333;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .modal-content p {
+            color: #666;
+            margin-bottom: 2rem;
+            line-height: 1.5;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        /* Botón de modo oscuro */
+        .dark-mode-toggle {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: white;
+            font-size: 1.2rem;
+            z-index: 1000;
+        }
+
+        .dark-mode-toggle:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+
+        body.dark-mode .dark-mode-toggle {
+            background: rgba(187, 134, 252, 0.2);
+            border: 1px solid rgba(187, 134, 252, 0.3);
+            color: #bb86fc;
+        }
+
+        body.dark-mode .dark-mode-toggle:hover {
+            background: rgba(187, 134, 252, 0.3);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                margin: 1rem;
+                padding: 1.5rem;
+            }
+
+            .admin-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .table-container {
+                overflow-x: auto;
+            }
+
+            .table {
+                min-width: 600px;
+            }
+
+            .actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .header h1 {
+                font-size: 1.5rem;
+            }
+
+            .modal-content {
+                width: 95%;
+                margin: 1rem;
+            }
+
+            .modal-buttons {
+                flex-direction: column;
+            }
+        }
+
+        /* Animaciones */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .table tbody tr {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .table tbody tr:nth-child(1) { animation-delay: 0.1s; }
+        .table tbody tr:nth-child(2) { animation-delay: 0.2s; }
+        .table tbody tr:nth-child(3) { animation-delay: 0.3s; }
+        .table tbody tr:nth-child(4) { animation-delay: 0.4s; }
+        .table tbody tr:nth-child(5) { animation-delay: 0.5s; }
+        .table tbody tr:nth-child(6) { animation-delay: 0.6s; }
+    </style>
+</head>
+<body>
+    <!-- Botón de modo oscuro -->
+    <div class="dark-mode-toggle" id="darkModeToggle">
+        <i class="fas fa-moon" id="darkModeIcon"></i>
+    </div>
+
+    <div class="header">
+        <h1>
+            <i class="fas fa-graduation-cap"></i>
+            Sistema de Recomendaciones
+        </h1>
+        <p>
+            <i class="fas fa-users-cog"></i>
+            Panel de Administración
+        </p>
+    </div>
+    
+    <div class="container">
+        <div class="admin-header">
+            <h2>
+                <i class="fas fa-users"></i>
+                Gestión de Usuarios
+            </h2>
+            <a href="/admin/usuarios/nuevo" class="btn btn-nuevo">
+                <i class="fas fa-user-plus"></i>
+                Nuevo Usuario
+            </a>
+        </div>
+        
+        <!-- Mensaje de resultado -->
+        <div th:if="${mensaje}" class="mensaje" th:classappend="${tipoMensaje == 'error'} ? 'mensaje-error' : 'mensaje-exito'">
+            <i th:class="${tipoMensaje == 'error'} ? 'fas fa-exclamation-circle' : 'fas fa-check-circle'"></i>
+            <p th:text="${mensaje}"></p>
+        </div>
+        
+        <!-- Tabla de Usuarios -->
+        <div class="table-container">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>
+                            <i class="fas fa-hashtag"></i>
+                            ID
+                        </th>
+                        <th>
+                            <i class="fas fa-image"></i>
+                            Imagen
+                        </th>
+                        <th>
+                            <i class="fas fa-user"></i>
+                            Nombre
+                        </th>
+                        <th>
+                            <i class="fas fa-envelope"></i>
+                            Email
+                        </th>
+                        <th>
+                            <i class="fas fa-user-tag"></i>
+                            Roles
+                        </th>
+                        <th>
+                            <i class="fas fa-cogs"></i>
+                            Acciones
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="usuario : ${usuarios}">
+                        <td th:text="${usuario.id}"></td>
+                        <td class="user-image">
+                            <div class="avatar">
+                                <img th:if="${usuario.imagen != null}" th:src="@{'/usuario/imagen/' + ${usuario.id}}" alt="Imagen de usuario">
+                                <i th:if="${usuario.imagen == null}" class="fas fa-user"></i>
+                            </div>
+                        </td>
+                        <td th:text="${usuario.nombre}"></td>
+                        <td th:text="${usuario.email}"></td>
+                        <td>
+                            <div class="role-tags">
+                                <span th:each="rol : ${usuario.roles}" class="role-tag" 
+                                      th:classappend="${rol.nombre == 'ROLE_ADMIN'} ? 'admin-role' : 'user-role'">
+                                    <i th:class="${rol.nombre == 'ROLE_ADMIN'} ? 'fas fa-crown' : 'fas fa-user'"></i>
+                                    <span th:text="${rol.nombre == 'ROLE_ADMIN'} ? 'Admin' : 'Usuario'"></span>
+                                </span>
+                            </div>
+                        </td>
+                        <td class="actions">
+                            <a th:href="@{'/admin/usuarios/' + ${usuario.id}}" class="btn btn-edit">
+                                <i class="fas fa-edit"></i>
+                                Editar
+                            </a>
+                            <button class="btn btn-delete" th:data-id="${usuario.id}" onclick="confirmarEliminacion(this.getAttribute('data-id'))">
+                                <i class="fas fa-trash-alt"></i>
+                                Eliminar
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="navigation-buttons">
+            <a href="/home" class="btn btn-back">
+                <i class="fas fa-arrow-left"></i>
+                Volver al Inicio
+            </a>
+        </div>
+    </div>
+    
+    <!-- Modal de confirmación para eliminar usuario -->
+    <div id="modalEliminar" class="modal">
+        <div class="modal-content">
+            <h3>
+                <i class="fas fa-exclamation-triangle" style="color: #f44336;"></i>
+                Confirmar Eliminación
+            </h3>
+            <p>¿Estás seguro de que deseas eliminar este usuario? Esta acción no se puede deshacer.</p>
+            <div class="modal-buttons">
+                <button id="btnCancelarEliminar" class="btn btn-secondary">
+                    <i class="fas fa-times"></i>
+                    Cancelar
+                </button>
+                <form id="formEliminar" method="post" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash-alt"></i>
+                        Eliminar
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Modo oscuro
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        const darkModeIcon = document.getElementById('darkModeIcon');
+        const body = document.body;
+
+        // Verificar preferencia guardada
+        const isDarkMode = localStorage.getItem('darkMode') === 'true';
+        if (isDarkMode) {
+            body.classList.add('dark-mode');
+            darkModeIcon.classList.remove('fa-moon');
+            darkModeIcon.classList.add('fa-sun');
+        }
+
+        darkModeToggle.addEventListener('click', () => {
+            body.classList.toggle('dark-mode');
+            const isDark = body.classList.contains('dark-mode');
+            
+            // Cambiar icono
+            if (isDark) {
+                darkModeIcon.classList.remove('fa-moon');
+                darkModeIcon.classList.add('fa-sun');
+            } else {
+                darkModeIcon.classList.remove('fa-sun');
+                darkModeIcon.classList.add('fa-moon');
+            }
+            
+            // Guardar preferencia
+            localStorage.setItem('darkMode', isDark);
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Modal de eliminación
+            const modal = document.getElementById('modalEliminar');
+            const btnCancelar = document.getElementById('btnCancelarEliminar');
+            const formEliminar = document.getElementById('formEliminar');
+            
+            // Cerrar modal al hacer clic en Cancelar
+            btnCancelar.addEventListener('click', function() {
+                modal.style.display = 'none';
+            });
+            
+            // Cerrar modal al hacer clic fuera del contenido
+            window.addEventListener('click', function(event) {
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+
+            // Cerrar modal con tecla Escape
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'Escape' && modal.style.display === 'flex') {
+                    modal.style.display = 'none';
+                }
+            });
+        });
+        
+        // Función para confirmar eliminación
+        function confirmarEliminacion(userId) {
+            const modal = document.getElementById('modalEliminar');
+            const formEliminar = document.getElementById('formEliminar');
+            
+            // Establecer la acción del formulario
+            formEliminar.action = '/admin/usuarios/eliminar/' + userId;
+            
+            // Mostrar modal
+            modal.style.display = 'flex';
+        }
+
+        // Efecto de parallax suave en el fondo
+        document.addEventListener('mousemove', (e) => {
+            const moveX = (e.clientX * -1 / 15);
+            const moveY = (e.clientY * -1 / 15);
+            document.body.style.backgroundPosition = `${moveX}px ${moveY}px`;
+        });
+
+        // Animación de entrada para las filas de la tabla
+        window.addEventListener('load', () => {
+            const rows = document.querySelectorAll('.table tbody tr');
+            rows.forEach((row, index) => {
+                setTimeout(() => {
+                    row.style.opacity = '1';
+                    row.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+        });
+    </script>
+</body>
+</html>

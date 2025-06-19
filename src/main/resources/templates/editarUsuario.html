@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${usuario.id == null} ? 'Nuevo Usuario' : 'Editar Usuario'">Editar Usuario</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            transition: all 0.3s ease;
+        }
+
+        /* Modo Oscuro */
+        body.dark-mode {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        }
+
+        body.dark-mode .header {
+            background: rgba(30, 30, 30, 0.9);
+            border-bottom: 1px solid rgba(187, 134, 252, 0.2);
+        }
+
+        body.dark-mode .header h1,
+        body.dark-mode .header p {
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .container {
+            background: rgba(30, 30, 30, 0.95);
+        }
+
+        body.dark-mode .admin-header h2 {
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .edit-form {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(187, 134, 252, 0.2);
+        }
+
+        body.dark-mode .form-group label {
+            color: #b0b0b0;
+        }
+
+        body.dark-mode .form-input {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(187, 134, 252, 0.3);
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .form-input:focus {
+            border-color: #bb86fc;
+            box-shadow: 0 0 0 3px rgba(187, 134, 252, 0.2);
+        }
+
+        body.dark-mode .form-input::placeholder {
+            color: #666;
+        }
+
+        body.dark-mode .input-container i {
+            color: #bb86fc;
+        }
+
+        body.dark-mode .password-toggle {
+            color: #888;
+        }
+
+        body.dark-mode .password-toggle:hover {
+            color: #bb86fc;
+        }
+
+        body.dark-mode .role-option {
+            background: rgba(187, 134, 252, 0.1);
+            border: 1px solid rgba(187, 134, 252, 0.2);
+            color: #b0b0b0;
+        }
+
+        body.dark-mode .role-option input:checked + label {
+            color: #bb86fc;
+        }
+
+        body.dark-mode .btn-primary {
+            background: linear-gradient(135deg, #bb86fc, #6200ea);
+        }
+
+        body.dark-mode .btn-secondary {
+            background: #455a64;
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .btn-secondary:hover {
+            background: #546e7a;
+        }
+
+        body.dark-mode .help-text {
+            color: #888;
+        }
+
+        body.dark-mode .mensaje-exito {
+            background: rgba(76, 175, 80, 0.2);
+            border: 1px solid rgba(76, 175, 80, 0.4);
+            color: #81c784;
+        }
+
+        body.dark-mode .mensaje-error {
+            background: rgba(244, 67, 54, 0.2);
+            border: 1px solid rgba(244, 67, 54, 0.4);
+            color: #ff6b6b;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 1.5rem 0;
+            text-align: center;
+            color: white;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 300;
+            letter-spacing: 1px;
+            margin: 0;
+        }
+
+        .header p {
+            font-size: 1rem;
+            opacity: 0.9;
+            margin-top: 0.5rem;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            margin-top: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .admin-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid rgba(102, 126, 234, 0.1);
+        }
+
+        .admin-header h2 {
+            color: #333;
+            font-size: 1.8rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .mensaje {
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 12px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .mensaje-exito {
+            background: rgba(76, 175, 80, 0.1);
+            border: 1px solid rgba(76, 175, 80, 0.3);
+            color: #2e7d32;
+        }
+
+        .mensaje-error {
+            background: rgba(244, 67, 54, 0.1);
+            border: 1px solid rgba(244, 67, 54, 0.3);
+            color: #d32f2f;
+        }
+
+        .edit-form {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 2rem;
+            border: 1px solid rgba(102, 126, 234, 0.1);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.9rem;
+            color: #555;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .input-container {
+            position: relative;
+        }
+
+        .input-container i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #667eea;
+            font-size: 1.1rem;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: color 0.3s ease;
+        }
+
+        .password-toggle:hover {
+            color: #667eea;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 15px 45px;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 1rem;
+            background: rgba(102, 126, 234, 0.05);
+            color: #333;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(102, 126, 234, 0.2);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            background: rgba(102, 126, 234, 0.08);
+        }
+
+        .form-input::placeholder {
+            color: #999;
+        }
+
+        .help-text {
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .roles-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        .role-option {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            padding: 1rem;
+            background: rgba(102, 126, 234, 0.05);
+            border: 1px solid rgba(102, 126, 234, 0.2);
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .role-option:hover {
+            background: rgba(102, 126, 234, 0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+        }
+
+        .role-option input[type="checkbox"] {
+            transform: scale(1.3);
+            accent-color: #667eea;
+            cursor: pointer;
+        }
+
+        .role-option label {
+            margin: 0;
+            cursor: pointer;
+            font-weight: 500;
+            color: #555;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .role-option input:checked + label {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .form-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(102, 126, 234, 0.1);
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: none;
+            position: relative;
+            overflow: hidden;
+            min-width: 140px;
+            justify-content: center;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #607d8b;
+            color: white;
+            box-shadow: 0 8px 25px rgba(96, 125, 139, 0.3);
+        }
+
+        .btn-secondary:hover {
+            background: #546e7a;
+            transform: translateY(-2px);
+            box-shadow: 0 15px 35px rgba(96, 125, 139, 0.4);
+        }
+
+        /* Botón de modo oscuro */
+        .dark-mode-toggle {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: white;
+            font-size: 1.2rem;
+            z-index: 1000;
+        }
+
+        .dark-mode-toggle:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+
+        body.dark-mode .dark-mode-toggle {
+            background: rgba(187, 134, 252, 0.2);
+            border: 1px solid rgba(187, 134, 252, 0.3);
+            color: #bb86fc;
+        }
+
+        body.dark-mode .dark-mode-toggle:hover {
+            background: rgba(187, 134, 252, 0.3);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                margin: 1rem;
+                padding: 1.5rem;
+            }
+
+            .edit-form {
+                padding: 1.5rem;
+            }
+
+            .roles-container {
+                grid-template-columns: 1fr;
+            }
+
+            .form-buttons {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .btn {
+                min-width: auto;
+            }
+
+            .header h1 {
+                font-size: 1.5rem;
+            }
+        }
+
+        /* Animaciones */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .form-group {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .form-group:nth-child(1) { animation-delay: 0.1s; }
+        .form-group:nth-child(2) { animation-delay: 0.2s; }
+        .form-group:nth-child(3) { animation-delay: 0.3s; }
+        .form-group:nth-child(4) { animation-delay: 0.4s; }
+        .form-group:nth-child(5) { animation-delay: 0.5s; }
+
+        /* Indicadores visuales */
+        .required-field::after {
+            content: '*';
+            color: #ff6b6b;
+            margin-left: 0.3rem;
+        }
+
+        .role-admin {
+            border-left: 4px solid #ff6b6b;
+        }
+
+        .role-user {
+            border-left: 4px solid #667eea;
+        }
+    </style>
+</head>
+<body>
+    <!-- Botón de modo oscuro -->
+    <div class="dark-mode-toggle" id="darkModeToggle">
+        <i class="fas fa-moon" id="darkModeIcon"></i>
+    </div>
+
+    <div class="header">
+        <h1>
+            <i class="fas fa-graduation-cap"></i>
+            Sistema de Recomendaciones
+        </h1>
+        <p>
+            <i class="fas fa-users-cog"></i>
+            Panel de Administración
+        </p>
+    </div>
+    
+    <div class="container">
+        <div class="admin-header">
+            <h2 th:if="${usuario.id == null}">
+                <i class="fas fa-user-plus"></i>
+                Nuevo Usuario
+            </h2>
+            <h2 th:if="${usuario.id != null}">
+                <i class="fas fa-user-edit"></i>
+                Editar Usuario
+            </h2>
+        </div>
+        
+        <!-- Mensaje de resultado -->
+        <div th:if="${mensaje}" class="mensaje" th:classappend="${tipoMensaje == 'error'} ? 'mensaje-error' : 'mensaje-exito'">
+            <i th:class="${tipoMensaje == 'error'} ? 'fas fa-exclamation-circle' : 'fas fa-check-circle'"></i>
+            <span th:text="${mensaje}"></span>
+        </div>
+        
+        <form action="/admin/usuarios/guardar" method="post" class="edit-form">
+            <!-- Campo oculto para el ID -->
+            <input type="hidden" name="id" th:value="${usuario.id}" />
+            
+            <div class="form-group">
+                <label for="nombre" class="required-field">Nombre completo</label>
+                <div class="input-container">
+                    <i class="fas fa-user"></i>
+                    <input type="text" id="nombre" name="nombre" class="form-input" 
+                           th:value="${usuario.nombre}" placeholder="Ingresa el nombre completo" required />
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="email" class="required-field">Correo electrónico</label>
+                <div class="input-container">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" id="email" name="email" class="form-input" 
+                           th:value="${usuario.email}" placeholder="ejemplo@correo.com" required />
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="password" th:class="${usuario.id == null} ? 'required-field' : ''">Contraseña</label>
+                <div class="input-container">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="password" name="password" class="form-input" 
+                           placeholder="Ingresa la contraseña" th:required="${usuario.id == null}" />
+                    <i class="fas fa-eye password-toggle" id="togglePassword"></i>
+                </div>
+                <div class="help-text" th:if="${usuario.id != null}">
+                    <i class="fas fa-info-circle"></i>
+                    Dejar en blanco para mantener la contraseña actual
+                </div>
+                <div class="help-text" th:if="${usuario.id == null}">
+                    <i class="fas fa-shield-alt"></i>
+                    La contraseña es obligatoria para nuevos usuarios
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>
+                    <i class="fas fa-user-tag"></i>
+                    Roles del usuario
+                </label>
+                <div class="roles-container">
+                    <div class="role-option role-user" th:each="rol : ${todosLosRoles}" th:if="${rol.nombre == 'ROLE_USER'}">
+                        <input type="checkbox" name="roles" th:id="${'rol-' + rol.id}" th:value="${rol.id}" 
+                               th:checked="${usuario.roles != null && usuario.roles.contains(rol)}" />
+                        <label th:for="${'rol-' + rol.id}">
+                            <i class="fas fa-user"></i>
+                            Usuario
+                        </label>
+                    </div>
+                    <div class="role-option role-admin" th:each="rol : ${todosLosRoles}" th:if="${rol.nombre == 'ROLE_ADMIN'}">
+                        <input type="checkbox" name="roles" th:id="${'rol-' + rol.id}" th:value="${rol.id}" 
+                               th:checked="${usuario.roles != null && usuario.roles.contains(rol)}" />
+                        <label th:for="${'rol-' + rol.id}">
+                            <i class="fas fa-crown"></i>
+                            Administrador
+                        </label>
+                    </div>
+                </div>
+                <div class="help-text">
+                    <i class="fas fa-lightbulb"></i>
+                    Selecciona los roles que tendrá este usuario en el sistema
+                </div>
+            </div>
+            
+            <div class="form-buttons">
+                <a href="/admin/usuarios" class="btn btn-secondary">
+                    <i class="fas fa-times"></i>
+                    Cancelar
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i>
+                    Guardar Cambios
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // Modo oscuro
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        const darkModeIcon = document.getElementById('darkModeIcon');
+        const body = document.body;
+
+        // Verificar preferencia guardada
+        const isDarkMode = localStorage.getItem('darkMode') === 'true';
+        if (isDarkMode) {
+            body.classList.add('dark-mode');
+            darkModeIcon.classList.remove('fa-moon');
+            darkModeIcon.classList.add('fa-sun');
+        }
+
+        darkModeToggle.addEventListener('click', () => {
+            body.classList.toggle('dark-mode');
+            const isDark = body.classList.contains('dark-mode');
+            
+            // Cambiar icono
+            if (isDark) {
+                darkModeIcon.classList.remove('fa-moon');
+                darkModeIcon.classList.add('fa-sun');
+            } else {
+                darkModeIcon.classList.remove('fa-sun');
+                darkModeIcon.classList.add('fa-moon');
+            }
+            
+            // Guardar preferencia
+            localStorage.setItem('darkMode', isDark);
+        });
+
+        // Función para mostrar/ocultar contraseña
+        document.getElementById('togglePassword').addEventListener('click', function() {
+            const passwordInput = document.getElementById('password');
+            const toggleIcon = this;
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.classList.remove('fa-eye');
+                toggleIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.classList.remove('fa-eye-slash');
+                toggleIcon.classList.add('fa-eye');
+            }
+        });
+
+        // Validación del formulario
+        document.querySelector('.edit-form').addEventListener('submit', function(e) {
+            const checkboxes = document.querySelectorAll('input[name="roles"]:checked');
+            
+            if (checkboxes.length === 0) {
+                e.preventDefault();
+                alert('Debes seleccionar al menos un rol para el usuario.');
+                return false;
+            }
+        });
+
+        // Efecto de parallax suave en el fondo
+        document.addEventListener('mousemove', (e) => {
+            const moveX = (e.clientX * -1 / 15);
+            const moveY = (e.clientY * -1 / 15);
+            document.body.style.backgroundPosition = `${moveX}px ${moveY}px`;
+        });
+
+        // Animación de entrada para los elementos del formulario
+        window.addEventListener('load', () => {
+            const formGroups = document.querySelectorAll('.form-group');
+            formGroups.forEach((group, index) => {
+                setTimeout(() => {
+                    group.style.opacity = '1';
+                    group.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+        });
+
+        // Efecto hover para las opciones de roles
+        document.querySelectorAll('.role-option').forEach(option => {
+            option.addEventListener('click', function() {
+                const checkbox = this.querySelector('input[type="checkbox"]');
+                checkbox.checked = !checkbox.checked;
+                
+                // Trigger change event
+                checkbox.dispatchEvent(new Event('change'));
+            });
+
+            // Prevenir que el click en el checkbox o label active el evento del contenedor
+            option.querySelector('input').addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+            
+            option.querySelector('label').addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+        });
+    </script>
+</body>
+</html>

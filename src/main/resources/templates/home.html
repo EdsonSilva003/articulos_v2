@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Recomendaciones</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+        }
+
+        /* Modo Oscuro */
+        body.dark-mode {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        }
+
+        body.dark-mode .header {
+            background: rgba(30, 30, 30, 0.9);
+            border-bottom: 1px solid rgba(187, 134, 252, 0.2);
+        }
+
+        body.dark-mode .header h1 {
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .dashboard-card {
+            background: rgba(30, 30, 30, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        body.dark-mode .welcome-title {
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .username {
+            color: #bb86fc;
+        }
+
+        body.dark-mode .menu-item {
+            background: linear-gradient(135deg, #bb86fc, #6200ea);
+            box-shadow: 0 8px 25px rgba(187, 134, 252, 0.3);
+        }
+
+        body.dark-mode .menu-item:hover {
+            box-shadow: 0 15px 35px rgba(187, 134, 252, 0.4);
+        }
+
+        body.dark-mode .menu-item.admin {
+            background: linear-gradient(135deg, #ff6b6b, #e53935);
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
+        }
+
+        body.dark-mode .menu-item.admin:hover {
+            box-shadow: 0 15px 35px rgba(255, 107, 107, 0.4);
+        }
+
+        body.dark-mode .menu-item.favoritos {
+            background: linear-gradient(135deg, #e91e63, #ad1457);
+            box-shadow: 0 8px 25px rgba(233, 30, 99, 0.3);
+        }
+
+        body.dark-mode .menu-item.favoritos:hover {
+            box-shadow: 0 15px 35px rgba(233, 30, 99, 0.4);
+        }
+
+        body.dark-mode .menu-item.recomendaciones {
+            background: linear-gradient(135deg, #ff9800, #f57c00);
+            box-shadow: 0 8px 25px rgba(255, 152, 0, 0.3);
+        }
+
+        body.dark-mode .menu-item.recomendaciones:hover {
+            box-shadow: 0 15px 35px rgba(255, 152, 0, 0.4);
+        }
+
+        body.dark-mode .logout-section {
+            border-top: 1px solid rgba(187, 134, 252, 0.2);
+        }
+
+        body.dark-mode .logout-btn {
+            color: #b0b0b0;
+        }
+
+        body.dark-mode .logout-btn:hover {
+            color: #ff6b6b;
+            background: rgba(255, 107, 107, 0.1);
+            border-color: rgba(255, 107, 107, 0.2);
+        }
+
+        body.dark-mode .stats-bar {
+            background: rgba(187, 134, 252, 0.1);
+            border: 1px solid rgba(187, 134, 252, 0.2);
+        }
+
+        body.dark-mode .stat-number {
+            color: #bb86fc;
+        }
+
+        body.dark-mode .stat-label {
+            color: #b0b0b0;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 1rem 0;
+            text-align: center;
+            color: white;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 300;
+            letter-spacing: 1px;
+            margin: 0;
+        }
+
+        .main-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        .dashboard-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 3rem;
+            width: 100%;
+            max-width: 700px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .user-avatar {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .user-avatar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .user-avatar:hover::before {
+            left: 100%;
+        }
+
+        .user-avatar i {
+            font-size: 2.5rem;
+            color: white;
+            z-index: 1;
+        }
+
+        .welcome-title {
+            font-size: 2.2rem;
+            color: #333;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .username {
+            font-size: 1.3rem;
+            color: #667eea;
+            margin-bottom: 2.5rem;
+            font-weight: 500;
+            text-transform: capitalize;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .menu-item {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 2rem 1.5rem;
+            border-radius: 15px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 140px;
+        }
+
+        .menu-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .menu-item:hover::before {
+            left: 100%;
+        }
+
+        .menu-item:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 45px rgba(102, 126, 234, 0.4);
+        }
+
+        .menu-item.admin {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
+        }
+
+        .menu-item.admin:hover {
+            box-shadow: 0 20px 45px rgba(255, 107, 107, 0.4);
+        }
+
+        .menu-item.favoritos {
+            background: linear-gradient(135deg, #e91e63, #ad1457);
+            box-shadow: 0 8px 25px rgba(233, 30, 99, 0.3);
+        }
+
+        .menu-item.favoritos:hover {
+            box-shadow: 0 20px 45px rgba(233, 30, 99, 0.4);
+        }
+
+        .menu-item.recomendaciones {
+            background: linear-gradient(135deg, #ff9800, #ff6f00);
+            box-shadow: 0 8px 25px rgba(255, 152, 0, 0.3);
+            position: relative;
+        }
+
+        .menu-item.recomendaciones:hover {
+            box-shadow: 0 20px 45px rgba(255, 152, 0, 0.4);
+            animation: pulse 1s infinite;
+        }
+
+        .menu-item.recomendaciones::after {
+            content: 'IA';
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #ff9800;
+            padding: 2px 6px;
+            border-radius: 8px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            z-index: 2;
+        }
+
+        .menu-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .menu-text {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 0;
+            letter-spacing: 0.5px;
+        }
+
+        .menu-subtitle {
+            font-size: 0.8rem;
+            opacity: 0.9;
+            margin-top: 0.3rem;
+            font-weight: 400;
+        }
+
+        .stats-section {
+            margin: 2rem 0;
+        }
+
+        .stats-title {
+            font-size: 1.2rem;
+            color: #667eea;
+            margin-bottom: 1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+            padding: 1.5rem;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 15px;
+            border: 1px solid rgba(102, 126, 234, 0.2);
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .stat-item:hover {
+            transform: translateY(-3px);
+            background: rgba(255, 255, 255, 0.7);
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #667eea;
+            display: block;
+            margin-bottom: 0.3rem;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #888;
+            font-weight: 500;
+        }
+
+        .logout-section {
+            border-top: 1px solid #eee;
+            padding-top: 2rem;
+            margin-top: 2rem;
+        }
+
+        .logout-btn {
+            color: #999;
+            text-decoration: none;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            border: 2px solid transparent;
+            font-weight: 500;
+        }
+
+        .logout-btn:hover {
+            color: #ff6b6b;
+            background: rgba(255, 107, 107, 0.1);
+            border-color: rgba(255, 107, 107, 0.2);
+            transform: translateY(-2px);
+        }
+
+        /* Botón de modo oscuro */
+        .dark-mode-toggle {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: white;
+            font-size: 1.4rem;
+            z-index: 1000;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .dark-mode-toggle:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1) rotate(10deg);
+        }
+
+        body.dark-mode .dark-mode-toggle {
+            background: rgba(187, 134, 252, 0.2);
+            border: 1px solid rgba(187, 134, 252, 0.3);
+            color: #bb86fc;
+        }
+
+        body.dark-mode .dark-mode-toggle:hover {
+            background: rgba(187, 134, 252, 0.3);
+        }
+
+        /* Banner de recomendaciones */
+        .recommendations-banner {
+            background: linear-gradient(135deg, #ff9800, #ff6f00);
+            color: white;
+            padding: 1rem;
+            margin-bottom: 2rem;
+            border-radius: 12px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            animation: shimmer 3s infinite;
+        }
+
+        .recommendations-banner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            animation: slide 2s infinite;
+        }
+
+        @keyframes slide {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .banner-text {
+            font-size: 0.9rem;
+            font-weight: 600;
+            z-index: 1;
+            position: relative;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .dashboard-card {
+                padding: 2rem;
+                margin: 1rem;
+                max-width: 500px;
+            }
+
+            .menu-grid {
+                grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+                gap: 1rem;
+            }
+
+            .header h1 {
+                font-size: 1.8rem;
+            }
+
+            .welcome-title {
+                font-size: 1.8rem;
+            }
+
+            .username {
+                font-size: 1.1rem;
+            }
+
+            .stats-bar {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .dark-mode-toggle {
+                width: 50px;
+                height: 50px;
+                font-size: 1.2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats-bar {
+                grid-template-columns: 1fr;
+            }
+
+            .menu-item {
+                padding: 1.5rem;
+                min-height: 120px;
+            }
+
+            .menu-icon {
+                font-size: 2rem;
+            }
+
+            .menu-text {
+                font-size: 1rem;
+            }
+
+            .menu-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Animaciones */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        @keyframes shimmer {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        .dashboard-card {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .menu-item {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .menu-item:nth-child(1) { animation-delay: 0.1s; }
+        .menu-item:nth-child(2) { animation-delay: 0.2s; }
+        .menu-item:nth-child(3) { animation-delay: 0.3s; }
+        .menu-item:nth-child(4) { animation-delay: 0.4s; }
+        .menu-item:nth-child(5) { animation-delay: 0.5s; }
+
+        .user-avatar:hover {
+            animation: pulse 1s infinite;
+        }
+
+        /* Efectos de glassmorphism */
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+
+        /* Partículas de fondo */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+        }
+    </style>
+</head>
+<body>
+    <!-- Botón de modo oscuro -->
+    <div class="dark-mode-toggle" id="darkModeToggle">
+        <i class="fas fa-moon" id="darkModeIcon"></i>
+    </div>
+
+    <header class="header">
+        <h1>
+            <i class="fas fa-graduation-cap"></i>
+            Sistema de Recomendaciones Académicas
+        </h1>
+    </header>
+    
+    <div class="main-container">
+        <div class="dashboard-card">
+            <div class="user-avatar">
+                <i class="fas fa-user"></i>
+            </div>
+            
+            <h1 class="welcome-title">¡Bienvenido de vuelta!</h1>
+            <p class="username" sec:authentication="name">Usuario</p>
+
+            <!-- Banner de recomendaciones -->
+            <div class="recommendations-banner">
+                <div class="banner-text">
+                    <i class="fas fa-sparkles"></i>
+                    ¡Nuevas recomendaciones personalizadas disponibles! Descubre artículos perfectos para ti
+                </div>
+            </div>
+            
+            <div class="menu-grid">
+                <a href="/recomendaciones" class="menu-item recomendaciones">
+                    <i class="fas fa-magic menu-icon"></i>
+                    <div class="menu-text">Recomendaciones</div>
+                    <div class="menu-subtitle">Contenido personalizado</div>
+                </a>
+
+                <a href="/articulos" class="menu-item">
+                    <i class="fas fa-search menu-icon"></i>
+                    <div class="menu-text">Explorar Artículos</div>
+                    <div class="menu-subtitle">Buscar y descubrir</div>
+                </a>
+                
+                <a href="/articulos/favoritos" class="menu-item favoritos">
+                    <i class="fas fa-heart menu-icon"></i>
+                    <div class="menu-text">Mis Favoritos</div>
+                    <div class="menu-subtitle">Artículos guardados</div>
+                </a>
+                
+                <a href="/perfil" class="menu-item">
+                    <i class="fas fa-user-cog menu-icon"></i>
+                    <div class="menu-text">Mi Perfil</div>
+                    <div class="menu-subtitle">Configuración</div>
+                </a>
+                
+                <a sec:authorize="hasRole('ROLE_ADMIN')" href="/admin/usuarios" class="menu-item admin">
+                    <i class="fas fa-users-cog menu-icon"></i>
+                    <div class="menu-text">Panel de Admin</div>
+                    <div class="menu-subtitle">Gestión del sistema</div>
+                </a>
+            </div>
+
+            
+            <div class="logout-section">
+                <a href="/logout" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Cerrar Sesión
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===== MODO OSCURO - CORREGIDO =====
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        const darkModeIcon = document.getElementById('darkModeIcon');
+        const body = document.body;
+
+        // Verificar preferencia guardada al cargar
+        function initDarkMode() {
+            const isDarkMode = localStorage.getItem('darkMode') === 'true';
+            if (isDarkMode) {
+                body.classList.add('dark-mode');
+                darkModeIcon.classList.remove('fa-moon');
+                darkModeIcon.classList.add('fa-sun');
+            }
+        }
+
+        // Toggle del modo oscuro
+        function toggleDarkMode() {
+            body.classList.toggle('dark-mode');
+            const isDark = body.classList.contains('dark-mode');
+            
+            // Cambiar icono
+            if (isDark) {
+                darkModeIcon.classList.remove('fa-moon');
+                darkModeIcon.classList.add('fa-sun');
+            } else {
+                darkModeIcon.classList.remove('fa-sun');
+                darkModeIcon.classList.add('fa-moon');
+            }
+            
+            // Guardar preferencia
+            localStorage.setItem('darkMode', isDark);
+        }
+
+        // Event listener para el botón
+        if (darkModeToggle) {
+            darkModeToggle.addEventListener('click', toggleDarkMode);
+        }
+
+        // Inicializar modo oscuro al cargar
+        initDarkMode();
+
+        // ===== NAVEGACIÓN A RECOMENDACIONES - CORREGIDO =====
+        
+        // Función para ir a recomendaciones
+        function goToRecommendations() {
+            // Debug para verificar la navegación
+            console.log('Navegando a recomendaciones...');
+            window.location.href = '/recomendaciones';
+        }
+
+        // Agregar event listener al botón de recomendaciones
+        document.addEventListener('DOMContentLoaded', function() {
+            const recommendationsButton = document.querySelector('.menu-item.recomendaciones');
+            
+            if (recommendationsButton) {
+                // Remover cualquier event listener existente
+                recommendationsButton.onclick = null;
+                
+                // Agregar nuevo event listener
+                recommendationsButton.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    console.log('Click en recomendaciones detectado');
+                    goToRecommendations();
+                });
+                
+                console.log('Event listener de recomendaciones agregado correctamente');
+            } else {
+                console.error('No se encontró el botón de recomendaciones');
+            }
+        });
+
+        // ===== RESTO DE FUNCIONALIDADES =====
+
+        // Efecto de parallax suave en el fondo
+        document.addEventListener('mousemove', (e) => {
+            const moveX = (e.clientX * -1 / 8);
+            const moveY = (e.clientY * -1 / 8);
+            document.body.style.backgroundPosition = `${moveX}px ${moveY}px`;
+        });
+
+        // Animación de contador para las estadísticas
+        function animateCounter(element, target) {
+            let current = 0;
+            const increment = target / 30;
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    current = target;
+                    clearInterval(timer);
+                }
+                element.textContent = Math.floor(current);
+            }, 50);
+        }
+
+        // Inicializar animaciones cuando la página carga
+        window.addEventListener('load', () => {
+            const statNumbers = document.querySelectorAll('.stat-number');
+            statNumbers.forEach(stat => {
+                const target = parseInt(stat.textContent);
+                stat.textContent = '0';
+                setTimeout(() => animateCounter(stat, target), 800);
+            });
+
+            // Animación de entrada para los elementos del menú
+            const menuItems = document.querySelectorAll('.menu-item');
+            menuItems.forEach((item, index) => {
+                setTimeout(() => {
+                    item.style.opacity = '1';
+                    item.style.transform = 'translateY(0)';
+                }, index * 150);
+            });
+        });
+
+        // Efecto especial para el botón de recomendaciones
+        document.addEventListener('DOMContentLoaded', function() {
+            const recommendationsItem = document.querySelector('.menu-item.recomendaciones');
+            
+            if (recommendationsItem) {
+                // Efecto de pulso periódico
+                setInterval(() => {
+                    recommendationsItem.style.animation = 'none';
+                    setTimeout(() => {
+                        recommendationsItem.style.animation = 'pulse 2s ease-in-out';
+                    }, 100);
+                }, 8000);
+
+                // Efecto de hover especial
+                recommendationsItem.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-8px) scale(1.05) rotate(2deg)';
+                });
+
+                recommendationsItem.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0) scale(1) rotate(0deg)';
+                });
+            }
+        });
+
+        // Atajo de teclado para ir a recomendaciones (Ctrl+R)
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.key === 'r') {
+                e.preventDefault();
+                goToRecommendations();
+            }
+        });
+
+        // Mostrar notificación de bienvenida
+        function mostrarNotificacionBienvenida() {
+            const notification = document.createElement('div');
+            notification.innerHTML = `
+                <div style="
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: linear-gradient(135deg, #ff9800, #ff6f00);
+                    color: white;
+                    padding: 15px 20px;
+                    border-radius: 12px;
+                    max-width: 300px;
+                    z-index: 10000;
+                    box-shadow: 0 8px 25px rgba(255, 152, 0, 0.3);
+                    backdrop-filter: blur(10px);
+                    transform: translateX(100%);
+                    transition: transform 0.3s ease;
+                ">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-sparkles" style="font-size: 1.2rem;"></i>
+                        <div>
+                            <div style="font-weight: 600; margin-bottom: 5px;">¡Hola de nuevo!</div>
+                            <div style="font-size: 0.85rem; opacity: 0.9;">
+                                Tienes 12 nuevas recomendaciones esperándote
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Animar entrada
+            setTimeout(() => {
+                notification.firstElementChild.style.transform = 'translateX(0)';
+            }, 500);
+            
+            // Remover después de 5 segundos
+            setTimeout(() => {
+                notification.firstElementChild.style.transform = 'translateX(100%)';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            }, 5000);
+        }
+
+        // Mostrar notificación solo la primera vez del día
+        const today = new Date().toDateString();
+        const lastNotification = localStorage.getItem('lastWelcomeNotification');
+        
+        if (lastNotification !== today) {
+            setTimeout(mostrarNotificacionBienvenida, 2000);
+            localStorage.setItem('lastWelcomeNotification', today);
+        }
+
+        // Función para verificar nuevas recomendaciones (simulada)
+        function checkForNewRecommendations() {
+            const banner = document.querySelector('.recommendations-banner');
+            const hasNewRecommendations = Math.random() > 0.5;
+            
+            if (hasNewRecommendations && banner) {
+                banner.style.animation = 'pulse 2s infinite, shimmer 3s infinite';
+            }
+        }
+
+        // Verificar nuevas recomendaciones cada 30 segundos
+        setInterval(checkForNewRecommendations, 30000);
+
+        // Efecto de typing en el banner
+        function typeWriter(element, text, speed = 50) {
+            let i = 0;
+            element.innerHTML = '<i class="fas fa-sparkles"></i> ';
+            
+            function type() {
+                if (i < text.length) {
+                    element.innerHTML += text.charAt(i);
+                    i++;
+                    setTimeout(type, speed);
+                }
+            }
+            type();
+        }
+
+        // Aplicar efecto typing al banner después de cargar
+        setTimeout(() => {
+            const bannerText = document.querySelector('.banner-text');
+            if (bannerText) {
+                const originalText = '¡Nuevas recomendaciones personalizadas disponibles! Descubre artículos perfectos para ti';
+                typeWriter(bannerText, originalText, 30);
+            }
+        }, 1500);
+
+        // Rastrear actividad del usuario
+        function trackUserActivity() {
+            const today = new Date().toDateString();
+            let activityData = JSON.parse(localStorage.getItem('userActivity') || '{}');
+            
+            if (!activityData[today]) {
+                activityData[today] = {
+                    visits: 0,
+                    timeSpent: 0,
+                    startTime: Date.now()
+                };
+            }
+            
+            activityData[today].visits++;
+            localStorage.setItem('userActivity', JSON.stringify(activityData));
+        }
+
+        trackUserActivity();
+
+        // Actualizar tiempo transcurrido antes de salir
+        window.addEventListener('beforeunload', () => {
+            const today = new Date().toDateString();
+            let activityData = JSON.parse(localStorage.getItem('userActivity') || '{}');
+            
+            if (activityData[today] && activityData[today].startTime) {
+                const timeSpent = Date.now() - activityData[today].startTime;
+                activityData[today].timeSpent += timeSpent;
+                localStorage.setItem('userActivity', JSON.stringify(activityData));
+            }
+        });
+
+        // Precargar página de recomendaciones
+        const link = document.createElement('link');
+        link.rel = 'prefetch';
+        link.href = '/recomendaciones';
+        document.head.appendChild(link);
+
+        // Debug para verificar que todo está funcionando
+        console.log('Script cargado correctamente');
+        console.log('Modo oscuro:', localStorage.getItem('darkMode'));
+    </script>
+</body>
+</html>

@@ -1,0 +1,246 @@
+/* General Styles */
+body {
+    font-family: 'Roboto', sans-serif;
+    background: linear-gradient(120deg, #bbdefb 0%, #90caf9 100%); /* Softer gradient for the background */
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+}
+
+/* Header */
+.header {
+    background-color: #1976d2; /* Educational blue */
+    color: white;
+    width: 100%;
+    padding: 1.5rem 0;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    font-size: 2.2rem;
+    font-weight: bold;
+}
+
+/* Main Container */
+.container {
+    background-color: #ffffff;
+    border-radius: 18px; /* Smooth rounded corners */
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15); /* Softer shadow for better aesthetics */
+    padding: 2.5rem;
+    margin: 3rem auto;
+    max-width: 700px;
+    text-align: center;
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
+}
+
+.container:hover {
+    transform: translateY(-5px); /* Subtle hover lift */
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.25); /* Enhance the shadow on hover */
+}
+
+h1, h2 {
+    color: #424242; /* Darker gray for headings */
+    font-weight: bold;
+    margin-bottom: 1.8rem;
+}
+
+/* Profile Header */
+.profile-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 2.5rem;
+}
+
+.profile-image {
+    width: 160px; /* Maintain a fixed size for consistency */
+    height: 160px;
+    border-radius: 70%; /* Circular appearance */
+    margin: 0 auto 1.2rem auto; /* Center horizontally and add margin below */
+    overflow: hidden;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15); /* Subtle shadow for effect */
+    background-color: #f0f0f0;
+    display: flex; /* Flexbox for centering content inside */
+    align-items: center; /* Center vertically */
+    justify-content: center; /* Center horizontally */
+    font-size: 3.2rem;
+    color: #9e9e9e;
+    position: relative; /* Keeps the upload button positioned correctly */
+}
+
+
+.profile-image:hover {
+    transform: scale(1.02); /* Slight zoom effect on hover */
+}
+
+
+.profile-image img {
+    width: 100%; /* Fully fill the container */
+    height: 100%;
+    object-fit: cover; /* Ensures the image is properly cropped */
+    display: block; /* Removes any unwanted inline spacing */
+}
+
+
+.profile-image-upload {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    background-color: #1e88e5; /* Bright educational blue */
+    color: white;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 1.8rem;
+    transition: background-color 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.profile-image-upload:hover {
+    background-color: #1565c0; /* Darker blue on hover */
+}
+
+.profile-name {
+    font-size: 1.8rem;
+    font-weight: bold;
+    margin: 0.5rem 0;
+    color: #424242;
+}
+
+.profile-email {
+    color: #616161;
+    font-size: 1.1rem;
+}
+
+/* Tabs Section */
+.tabs {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 2.5rem;
+    border-bottom: 2px solid #ddd;
+    flex-wrap: wrap;
+}
+
+.tab {
+    padding: 12px 20px;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin: 0 10px;
+    font-size: 1rem;
+    font-weight: bold;
+    color: #616161;
+    transition: all 0.3s ease;
+}
+
+.tab:hover {
+    color: #1565c0;
+}
+
+.tab.active {
+    border-bottom: 2px solid #1565c0;
+    color: #1565c0;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* Form Styles */
+.form-group {
+    margin-bottom: 2rem;
+    text-align: left;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+    color: #424242;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 14px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    font-size: 1rem;
+    background-color: #fafafa;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #1565c0;
+    box-shadow: 0 0 8px rgba(21, 101, 192, 0.3);
+}
+
+/* Buttons */
+.buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 2rem;
+    gap: 1.5rem;
+}
+
+.btn {
+    padding: 14px 40px;
+    border-radius: 10px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    text-decoration: none;
+    text-align: center;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.btn-primary {
+    background-color: #1976d2;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #1565c0;
+}
+
+.btn-secondary {
+    background-color: #eceff1;
+    color: #424242;
+}
+
+.btn-secondary:hover {
+    background-color: #e0e0e0;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .container {
+        padding: 2rem;
+    }
+
+    .buttons {
+        flex-direction: column;
+    }
+
+    .btn {
+        width: 100%;
+    }
+}

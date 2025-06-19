@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro - Sistema de Recomendaciones</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        /* Modo Oscuro */
+        body.dark-mode {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        }
+
+        body.dark-mode .register-container {
+            background: rgba(30, 30, 30, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        body.dark-mode .register-title {
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .register-subtitle {
+            color: #bb86fc;
+        }
+
+        body.dark-mode .form-group label {
+            color: #b0b0b0;
+        }
+
+        body.dark-mode .form-input {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(187, 134, 252, 0.3);
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .form-input:focus {
+            border-color: #bb86fc;
+            box-shadow: 0 0 0 3px rgba(187, 134, 252, 0.2);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        body.dark-mode .form-input::placeholder {
+            color: #666;
+        }
+
+        body.dark-mode .input-container i {
+            color: #bb86fc;
+        }
+
+        body.dark-mode .password-toggle {
+            color: #888;
+        }
+
+        body.dark-mode .password-toggle:hover {
+            color: #bb86fc;
+        }
+
+        body.dark-mode .password-strength {
+            color: #b0b0b0;
+        }
+
+        body.dark-mode .strength-weak { color: #ff6b6b; }
+        body.dark-mode .strength-medium { color: #ffb74d; }
+        body.dark-mode .strength-strong { color: #81c784; }
+
+        body.dark-mode .register-button {
+            background: linear-gradient(135deg, #bb86fc, #6200ea);
+            box-shadow: 0 8px 25px rgba(187, 134, 252, 0.3);
+        }
+
+        body.dark-mode .register-button:hover {
+            box-shadow: 0 15px 35px rgba(187, 134, 252, 0.4);
+        }
+
+        body.dark-mode .divider::before {
+            background: linear-gradient(to right, transparent, rgba(187, 134, 252, 0.3), transparent);
+        }
+
+        body.dark-mode .divider span {
+            background: rgba(30, 30, 30, 0.95);
+            color: #999;
+        }
+
+        body.dark-mode .login-link a {
+            color: #bb86fc;
+        }
+
+        body.dark-mode .login-link a:hover {
+            color: #d7b9ff;
+            background: rgba(187, 134, 252, 0.1);
+            border-color: rgba(187, 134, 252, 0.2);
+        }
+
+        body.dark-mode .success-message {
+            background: rgba(76, 175, 80, 0.2);
+            border: 1px solid rgba(76, 175, 80, 0.4);
+            color: #81c784;
+        }
+
+        body.dark-mode .error-message {
+            background: rgba(244, 67, 54, 0.2);
+            border: 1px solid rgba(244, 67, 54, 0.4);
+            color: #ff6b6b;
+        }
+
+        .register-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 3rem;
+            width: 100%;
+            max-width: 500px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .header-section {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .system-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .system-icon i {
+            font-size: 2rem;
+            color: white;
+        }
+
+        .register-title {
+            font-size: 2rem;
+            color: #333;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .register-subtitle {
+            font-size: 1rem;
+            color: #667eea;
+            margin-bottom: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.9rem;
+            color: #555;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .input-container {
+            position: relative;
+        }
+
+        .input-container i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #667eea;
+            font-size: 1.1rem;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: color 0.3s ease;
+        }
+
+        .password-toggle:hover {
+            color: #667eea;
+        }
+
+        /* Botón de modo oscuro */
+        .dark-mode-toggle {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: white;
+            font-size: 1.2rem;
+            z-index: 1000;
+        }
+
+        .dark-mode-toggle:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+
+        body.dark-mode .dark-mode-toggle {
+            background: rgba(187, 134, 252, 0.2);
+            border: 1px solid rgba(187, 134, 252, 0.3);
+            color: #bb86fc;
+        }
+
+        body.dark-mode .dark-mode-toggle:hover {
+            background: rgba(187, 134, 252, 0.3);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 15px 45px;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 1rem;
+            background: rgba(102, 126, 234, 0.05);
+            color: #333;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(102, 126, 234, 0.2);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            background: rgba(102, 126, 234, 0.08);
+        }
+
+        .form-input::placeholder {
+            color: #999;
+        }
+
+        .password-strength {
+            margin-top: 0.5rem;
+            font-size: 0.8rem;
+        }
+
+        .strength-weak { color: #f44336; }
+        .strength-medium { color: #ff9800; }
+        .strength-strong { color: #4caf50; }
+
+        .register-button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .register-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .register-button:hover::before {
+            left: 100%;
+        }
+
+        .register-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
+        }
+
+        .register-button:active {
+            transform: translateY(0);
+        }
+
+        .register-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .divider {
+            text-align: center;
+            margin: 2rem 0;
+            position: relative;
+        }
+
+        .divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(to right, transparent, rgba(102, 126, 234, 0.3), transparent);
+        }
+
+        .divider span {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 0 1rem;
+            color: #888;
+            font-size: 0.9rem;
+        }
+
+        .login-link {
+            text-align: center;
+        }
+
+        .login-link a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.8rem 1.5rem;
+            border-radius: 10px;
+            border: 2px solid transparent;
+        }
+
+        .login-link a:hover {
+            color: #764ba2;
+            background: rgba(102, 126, 234, 0.1);
+            border-color: rgba(102, 126, 234, 0.2);
+            text-decoration: none;
+        }
+
+        .success-message {
+            background: rgba(76, 175, 80, 0.1);
+            border: 1px solid rgba(76, 175, 80, 0.3);
+            color: #2e7d32;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        .error-message {
+            background: rgba(244, 67, 54, 0.1);
+            border: 1px solid rgba(244, 67, 54, 0.3);
+            color: #d32f2f;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        .checkbox-container a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .register-container {
+                padding: 2rem;
+                margin: 1rem;
+            }
+
+            .register-title {
+                font-size: 1.5rem;
+            }
+        }
+
+        /* Animaciones */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .form-group {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .form-group:nth-child(1) { animation-delay: 0.1s; }
+        .form-group:nth-child(2) { animation-delay: 0.2s; }
+        .form-group:nth-child(3) { animation-delay: 0.3s; }
+        .form-group:nth-child(4) { animation-delay: 0.4s; }
+
+        /* Efecto de parallax suave */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+        }
+    </style>
+</head>
+<body>
+    <!-- Botón de modo oscuro -->
+    <div class="dark-mode-toggle" id="darkModeToggle">
+        <i class="fas fa-moon" id="darkModeIcon"></i>
+    </div>
+
+    <div class="register-container">
+        <div class="header-section">
+            <div class="system-icon">
+                <i class="fas fa-user-graduate"></i>
+            </div>
+            <h1 class="register-title">¡Únete a nosotros!</h1>
+            <p class="register-subtitle">Crea tu cuenta en el Sistema de Recomendaciones</p>
+        </div>
+
+        <!-- Mensaje de éxito o error (si existe) -->
+        <!-- <div class="success-message">
+            <i class="fas fa-check-circle"></i>
+            Cuenta creada exitosamente. Ahora puedes iniciar sesión.
+        </div> -->
+
+        <!-- <div class="error-message">
+            <i class="fas fa-exclamation-circle"></i>
+            El email ya está registrado. Intenta con otro.
+        </div> -->
+
+        <form action="/register" method="post" id="registerForm">
+            <div class="form-group">
+                <label for="nombre">Nombre completo</label>
+                <div class="input-container">
+                    <i class="fas fa-user"></i>
+                    <input type="text" id="nombre" name="nombre" class="form-input" 
+                           placeholder="Escribe tu nombre completo" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Correo electrónico</label>
+                <div class="input-container">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" id="email" name="email" class="form-input" 
+                           placeholder="Escribe tu correo electrónico" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Contraseña</label>
+                <div class="input-container">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="password" name="password" class="form-input" 
+                           placeholder="Crea una contraseña segura" required>
+                    <i class="fas fa-eye password-toggle" id="togglePassword"></i>
+                </div>
+                <div id="passwordStrength" class="password-strength"></div>
+            </div>
+
+            <button type="submit" class="register-button" id="registerBtn">
+                <i class="fas fa-user-plus"></i>
+                Crear Cuenta
+            </button>
+        </form>
+
+        <div class="divider">
+            <span>¿Ya tienes cuenta?</span>
+        </div>
+
+        <div class="login-link">
+            <a href="/login">
+                <i class="fas fa-sign-in-alt"></i>
+                ¡Inicia Sesión!
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Modo oscuro
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        const darkModeIcon = document.getElementById('darkModeIcon');
+        const body = document.body;
+
+        // Verificar preferencia guardada
+        const isDarkMode = localStorage.getItem('darkMode') === 'true';
+        if (isDarkMode) {
+            body.classList.add('dark-mode');
+            darkModeIcon.classList.remove('fa-moon');
+            darkModeIcon.classList.add('fa-sun');
+        }
+
+        darkModeToggle.addEventListener('click', () => {
+            body.classList.toggle('dark-mode');
+            const isDark = body.classList.contains('dark-mode');
+            
+            // Cambiar icono
+            if (isDark) {
+                darkModeIcon.classList.remove('fa-moon');
+                darkModeIcon.classList.add('fa-sun');
+            } else {
+                darkModeIcon.classList.remove('fa-sun');
+                darkModeIcon.classList.add('fa-moon');
+            }
+            
+            // Guardar preferencia
+            localStorage.setItem('darkMode', isDark);
+        });
+
+        // Función para mostrar/ocultar contraseña
+        document.getElementById('togglePassword').addEventListener('click', function() {
+            const passwordInput = document.getElementById('password');
+            const toggleIcon = this;
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.classList.remove('fa-eye');
+                toggleIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.classList.remove('fa-eye-slash');
+                toggleIcon.classList.add('fa-eye');
+            }
+        });
+
+        // Efecto de parallax suave en el fondo
+        document.addEventListener('mousemove', (e) => {
+            const moveX = (e.clientX * -1 / 10);
+            const moveY = (e.clientY * -1 / 10);
+            document.body.style.backgroundPosition = `${moveX}px ${moveY}px`;
+        });
+
+        // Validación de fuerza de contraseña
+        document.getElementById('password').addEventListener('input', function() {
+            const password = this.value;
+            const strengthIndicator = document.getElementById('passwordStrength');
+            
+            let strength = 0;
+            let strengthText = '';
+            let strengthClass = '';
+            
+            // Criterios de fuerza
+            if (password.length >= 8) strength++;
+            if (/[a-z]/.test(password)) strength++;
+            if (/[A-Z]/.test(password)) strength++;
+            if (/[0-9]/.test(password)) strength++;
+            if (/[^A-Za-z0-9]/.test(password)) strength++;
+            
+            if (password.length === 0) {
+                strengthText = '';
+                strengthClass = '';
+            } else if (strength < 3) {
+                strengthText = '⚠️ Contraseña débil';
+                strengthClass = 'strength-weak';
+            } else if (strength < 4) {
+                strengthText = '⚡ Contraseña media';
+                strengthClass = 'strength-medium';
+            } else {
+                strengthText = '✅ Contraseña fuerte';
+                strengthClass = 'strength-strong';
+            }
+            
+            strengthIndicator.textContent = strengthText;
+            strengthIndicator.className = `password-strength ${strengthClass}`;
+        });
+
+        // Validación del formulario
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            const password = document.getElementById('password').value;
+            const registerBtn = document.getElementById('registerBtn');
+            
+            if (password.length < 6) {
+                e.preventDefault();
+                alert('La contraseña debe tener al menos 6 caracteres');
+                return;
+            }
+            
+            // Deshabilitar botón durante el envío
+            registerBtn.disabled = true;
+            registerBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creando cuenta...';
+            
+            // Re-habilitar después de 5 segundos (en caso de error)
+            setTimeout(() => {
+                registerBtn.disabled = false;
+                registerBtn.innerHTML = '<i class="fas fa-user-plus"></i> Crear Cuenta';
+            }, 5000);
+        });
+
+        // Animación de entrada para los elementos del formulario
+        window.addEventListener('load', () => {
+            const formGroups = document.querySelectorAll('.form-group');
+            formGroups.forEach((group, index) => {
+                setTimeout(() => {
+                    group.style.opacity = '1';
+                    group.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro Exitoso</title>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb); /* Gradiente educativo */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .container {
+            background-color: rgba(255, 255, 255, 0.95); /* Fondo blanco translúcido */
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 15px 25px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            font-size: 2rem;
+            color: #1e88e5; /* Azul vibrante */
+            font-weight: bold;
+        }
+
+        p {
+            font-size: 16px;
+            color: #333; /* Texto oscuro */
+            margin-bottom: 10px;
+        }
+
+        a {
+            color: #1e88e5; /* Azul educativo */
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: bold;
+            display: inline-block;
+            margin-top: 15px;
+            padding: 10px 15px;
+            background-color: #e3f2fd; /* Fondo azul claro */
+            border-radius: 8px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        a:hover {
+            text-decoration: underline;
+            background-color: #bbdefb; /* Color más oscuro al hover */
+            transform: scale(1.05);
+        }
+
+        .illustration {
+            margin-bottom: 20px;
+        }
+
+        .illustration img {
+            width: 100%;
+            max-width: 150px;
+            display: block;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="illustration">
+        </div>
+        <h1>¡Registro Exitoso!</h1>
+        <p>¡Te has registrado correctamente! Aquí están tus datos:</p>
+        <p><strong>Nombre:</strong> <span th:text="${usuario.nombre}"></span></p>
+        <p><strong>Email:</strong> <span th:text="${usuario.email}"></span></p>
+        <a href="/login">Ir a la página de inicio de sesión</a>
+    </div>
+</body>
+</html>

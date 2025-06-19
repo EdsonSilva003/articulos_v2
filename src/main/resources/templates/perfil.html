@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Perfil - Sistema de Recomendaciones</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            transition: all 0.3s ease;
+        }
+
+        /* Modo Oscuro */
+        body.dark-mode {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        }
+
+        body.dark-mode .header {
+            background: rgba(30, 30, 30, 0.9);
+            border-bottom: 1px solid rgba(187, 134, 252, 0.2);
+        }
+
+        body.dark-mode .header h1 {
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .container {
+            background: rgba(30, 30, 30, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        body.dark-mode h2 {
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .profile-name {
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .profile-email {
+            color: #bb86fc;
+        }
+
+        body.dark-mode .tab {
+            background: rgba(255, 255, 255, 0.05);
+            color: #b0b0b0;
+            border: 1px solid rgba(187, 134, 252, 0.2);
+        }
+
+        body.dark-mode .tab.active {
+            background: linear-gradient(135deg, #bb86fc, #6200ea);
+            color: white;
+        }
+
+        body.dark-mode .tab:hover {
+            background: rgba(187, 134, 252, 0.1);
+            color: #bb86fc;
+        }
+
+        body.dark-mode .tab-content {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(187, 134, 252, 0.1);
+        }
+
+        body.dark-mode .form-group label {
+            color: #b0b0b0;
+        }
+
+        body.dark-mode .form-input {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(187, 134, 252, 0.3);
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .form-input:focus {
+            border-color: #bb86fc;
+            box-shadow: 0 0 0 3px rgba(187, 134, 252, 0.2);
+        }
+
+        body.dark-mode .form-input::placeholder {
+            color: #666;
+        }
+
+        body.dark-mode .input-container i {
+            color: #bb86fc;
+        }
+
+        body.dark-mode .password-toggle {
+            color: #888;
+        }
+
+        body.dark-mode .password-toggle:hover {
+            color: #bb86fc;
+        }
+
+        body.dark-mode .btn-primary {
+            background: linear-gradient(135deg, #bb86fc, #6200ea);
+        }
+
+        body.dark-mode .btn-secondary {
+            background: #455a64;
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .btn-secondary:hover {
+            background: #546e7a;
+        }
+
+        body.dark-mode .mensaje-exito {
+            background: rgba(76, 175, 80, 0.2);
+            border: 1px solid rgba(76, 175, 80, 0.4);
+            color: #81c784;
+        }
+
+        body.dark-mode .mensaje-error {
+            background: rgba(244, 67, 54, 0.2);
+            border: 1px solid rgba(244, 67, 54, 0.4);
+            color: #ff6b6b;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 1.5rem 0;
+            text-align: center;
+            color: white;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 300;
+            letter-spacing: 1px;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 2rem auto;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 2.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 2rem;
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+
+        .profile-header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+            padding: 2rem;
+            background: rgba(102, 126, 234, 0.05);
+            border-radius: 15px;
+            border: 1px solid rgba(102, 126, 234, 0.1);
+        }
+
+        .profile-image {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 1.5rem;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 15px 35px rgba(102, 126, 234, 0.3);
+            overflow: hidden;
+        }
+
+        .profile-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        .profile-image span {
+            font-size: 3rem;
+            color: white;
+        }
+
+        .profile-image-upload {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 35px;
+            height: 35px;
+            background: #667eea;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+            font-size: 1.2rem;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .profile-image-upload:hover {
+            background: #764ba2;
+            transform: scale(1.1);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .profile-name {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .profile-email {
+            font-size: 1rem;
+            color: #667eea;
+            font-weight: 500;
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 2rem;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 1rem;
+            background: rgba(102, 126, 234, 0.1);
+            border: 1px solid rgba(102, 126, 234, 0.2);
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            color: #555;
+            min-width: 150px;
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .tab:hover:not(.active) {
+            background: rgba(102, 126, 234, 0.15);
+            color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .tab-content {
+            display: none;
+            background: rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 2rem;
+            border: 1px solid rgba(102, 126, 234, 0.1);
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeInUp 0.4s ease-out;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.9rem;
+            color: #555;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .input-container {
+            position: relative;
+        }
+
+        .input-container i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #667eea;
+            font-size: 1.1rem;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: color 0.3s ease;
+        }
+
+        .password-toggle:hover {
+            color: #667eea;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 15px 45px;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 1rem;
+            background: rgba(102, 126, 234, 0.05);
+            color: #333;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(102, 126, 234, 0.2);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            background: rgba(102, 126, 234, 0.08);
+        }
+
+        .form-input::placeholder {
+            color: #999;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 2rem;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #607d8b;
+            color: white;
+            box-shadow: 0 8px 25px rgba(96, 125, 139, 0.3);
+        }
+
+        .btn-secondary:hover {
+            background: #546e7a;
+            transform: translateY(-2px);
+            box-shadow: 0 15px 35px rgba(96, 125, 139, 0.4);
+        }
+
+        .mensaje {
+            padding: 1rem;
+            margin: 1.5rem 0;
+            border-radius: 12px;
+            font-weight: 500;
+            text-align: center;
+        }
+
+        .mensaje-exito {
+            background: rgba(76, 175, 80, 0.1);
+            border: 1px solid rgba(76, 175, 80, 0.3);
+            color: #2e7d32;
+        }
+
+        .mensaje-error {
+            background: rgba(244, 67, 54, 0.1);
+            border: 1px solid rgba(244, 67, 54, 0.3);
+            color: #d32f2f;
+        }
+
+        /* Botón de modo oscuro */
+        .dark-mode-toggle {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: white;
+            font-size: 1.2rem;
+            z-index: 1000;
+        }
+
+        .dark-mode-toggle:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+
+        body.dark-mode .dark-mode-toggle {
+            background: rgba(187, 134, 252, 0.2);
+            border: 1px solid rgba(187, 134, 252, 0.3);
+            color: #bb86fc;
+        }
+
+        body.dark-mode .dark-mode-toggle:hover {
+            background: rgba(187, 134, 252, 0.3);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                margin: 1rem;
+                padding: 1.5rem;
+            }
+
+            .tabs {
+                flex-direction: column;
+            }
+
+            .buttons {
+                flex-direction: column;
+            }
+
+            .btn {
+                text-align: center;
+                justify-content: center;
+            }
+        }
+
+        /* Animaciones */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .form-group {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .form-group:nth-child(1) { animation-delay: 0.1s; }
+        .form-group:nth-child(2) { animation-delay: 0.2s; }
+        .form-group:nth-child(3) { animation-delay: 0.3s; }
+    </style>
+</head>
+<body>
+    <!-- Botón de modo oscuro -->
+    <div class="dark-mode-toggle" id="darkModeToggle">
+        <i class="fas fa-moon" id="darkModeIcon"></i>
+    </div>
+
+    <div class="header">
+        <h1>
+            <i class="fas fa-graduation-cap"></i>
+            Sistema de Recomendaciones Académicas
+        </h1>
+    </div>
+    
+    <div class="container">
+        <h2>Mi Perfil</h2>
+        
+        <div class="profile-header">
+            <div class="profile-image">
+                <!-- Si el usuario tiene imagen, mostrarla -->
+                <img th:if="${tieneImagen}" th:src="@{'/usuario/imagen/' + ${usuario.id}}" id="profileImage" alt="Foto de perfil" />
+                <!-- Si no tiene imagen, mostrar icono por defecto -->
+                <span th:unless="${tieneImagen}">
+                    <i class="fas fa-user"></i>
+                </span>
+                
+                <!-- Botón para cambiar la imagen -->
+                <label for="fileInput" class="profile-image-upload">
+                    <i class="fas fa-plus"></i>
+                </label>
+                <input type="file" id="fileInput" accept="image/*" class="hidden" />
+            </div>
+            <p class="profile-name" th:text="${usuario.nombre}">Usuario</p>
+            <p class="profile-email" th:text="${usuario.email}">usuario@ejemplo.com</p>
+        </div>
+        
+        <!-- Tabs para separar las secciones -->
+        <div class="tabs">
+            <div class="tab" data-tab="info">
+                <i class="fas fa-user-edit"></i>
+                Información Personal
+            </div>
+            <div class="tab" data-tab="password">
+                <i class="fas fa-key"></i>
+                Cambiar Contraseña
+            </div>
+            <div class="tab" data-tab="image">
+                <i class="fas fa-image"></i>
+                Cambiar Imagen
+            </div>
+        </div>
+        
+        <!-- Tab de Información Personal -->
+        <div id="infoTab" class="tab-content">
+            <form action="/perfil/actualizar-info" method="post">
+                <div class="form-group">
+                    <label for="nombre">Nombre completo</label>
+                    <div class="input-container">
+                        <i class="fas fa-user"></i>
+                        <input type="text" id="nombre" name="nombre" class="form-input" 
+                               th:value="${usuario.nombre}" placeholder="Tu nombre" required />
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Correo electrónico</label>
+                    <div class="input-container">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" id="email" name="email" class="form-input" 
+                               th:value="${usuario.email}" placeholder="Tu email" required />
+                    </div>
+                </div>
+                
+                <div class="buttons">
+                    <a href="/home" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i>
+                        Volver
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i>
+                        Actualizar Información
+                    </button>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Tab de Cambiar Contraseña -->
+        <div id="passwordTab" class="tab-content">
+            <form action="/perfil/actualizar-password" method="post">
+                <div class="form-group">
+                    <label for="password">Nueva contraseña</label>
+                    <div class="input-container">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="password" name="password" class="form-input" 
+                               placeholder="Ingresa tu nueva contraseña" required />
+                        <i class="fas fa-eye password-toggle" data-target="password"></i>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="confirmPassword">Confirmar contraseña</label>
+                    <div class="input-container">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="confirmPassword" name="confirmPassword" class="form-input" 
+                               placeholder="Confirma tu nueva contraseña" required />
+                        <i class="fas fa-eye password-toggle" data-target="confirmPassword"></i>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="currentPassword">Contraseña actual</label>
+                    <div class="input-container">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="currentPassword" name="currentPassword" class="form-input" 
+                               placeholder="Ingresa tu contraseña actual" required />
+                        <i class="fas fa-eye password-toggle" data-target="currentPassword"></i>
+                    </div>
+                </div>
+                
+                <div class="buttons">
+                    <a href="/home" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i>
+                        Volver
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i>
+                        Guardar Cambios
+                    </button>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Tab de Cambiar Imagen -->
+        <div id="imageTab" class="tab-content">
+            <form action="/perfil/actualizar-imagen" method="post" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="imagenPerfil">Selecciona una nueva imagen de perfil</label>
+                    <div class="input-container">
+                        <i class="fas fa-image"></i>
+                        <input type="file" id="imagenPerfil" name="imagen" class="form-input" 
+                               accept="image/*" required />
+                    </div>
+                </div>
+                
+                <div class="buttons">
+                    <a href="/home" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i>
+                        Volver
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-upload"></i>
+                        Subir Imagen
+                    </button>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Mensaje de resultado -->
+        <div th:if="${mensaje}" class="mensaje" th:classappend="${tipoMensaje == 'error'} ? 'mensaje-error' : 'mensaje-exito'" th:text="${mensaje}">
+        </div>
+    </div>
+    
+    <script>
+        // Modo oscuro
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        const darkModeIcon = document.getElementById('darkModeIcon');
+        const body = document.body;
+
+        // Verificar preferencia guardada
+        const isDarkMode = localStorage.getItem('darkMode') === 'true';
+        if (isDarkMode) {
+            body.classList.add('dark-mode');
+            darkModeIcon.classList.remove('fa-moon');
+            darkModeIcon.classList.add('fa-sun');
+        }
+
+        darkModeToggle.addEventListener('click', () => {
+            body.classList.toggle('dark-mode');
+            const isDark = body.classList.contains('dark-mode');
+            
+            // Cambiar icono
+            if (isDark) {
+                darkModeIcon.classList.remove('fa-moon');
+                darkModeIcon.classList.add('fa-sun');
+            } else {
+                darkModeIcon.classList.remove('fa-sun');
+                darkModeIcon.classList.add('fa-moon');
+            }
+            
+            // Guardar preferencia
+            localStorage.setItem('darkMode', isDark);
+        });
+
+        // Función para mostrar/ocultar contraseña
+        document.querySelectorAll('.password-toggle').forEach(toggle => {
+            toggle.addEventListener('click', function() {
+                const targetId = this.getAttribute('data-target');
+                const passwordInput = document.getElementById(targetId);
+                
+                if (passwordInput.type === 'password') {
+                    passwordInput.type = 'text';
+                    this.classList.remove('fa-eye');
+                    this.classList.add('fa-eye-slash');
+                } else {
+                    passwordInput.type = 'password';
+                    this.classList.remove('fa-eye-slash');
+                    this.classList.add('fa-eye');
+                }
+            });
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Configurar la primera tab como activa por defecto
+            document.querySelector('.tab[data-tab="info"]').classList.add('active');
+            document.getElementById('infoTab').classList.add('active');
+            
+            // Cambio de tabs
+            const tabs = document.querySelectorAll('.tab');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // Quitar clases active
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tabContents.forEach(content => content.classList.remove('active'));
+                    
+                    // Añadir clase active al tab clickeado y su contenido
+                    this.classList.add('active');
+                    const tabId = this.getAttribute('data-tab');
+                    document.getElementById(tabId + 'Tab').classList.add('active');
+                });
+            });
+            
+            // Cargar la imagen de perfil
+            const profileImage = document.getElementById('profileImage');
+            if (profileImage) {
+                const userId = profileImage.src.split('/').pop();
+                fetch(`/usuario/imagen/${userId}`)
+                    .then(response => response.text())
+                    .then(base64Image => {
+                        if (base64Image && base64Image.length > 0) {
+                            profileImage.src = `data:image/jpeg;base64,${base64Image}`;
+                        }
+                    })
+                    .catch(error => console.error('Error cargando la imagen:', error));
+            }
+            
+            // Mostrar imagen seleccionada en miniatura
+            const fileInput = document.getElementById('fileInput');
+            fileInput.addEventListener('change', function() {
+                const file = this.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        // Redirigir a la tab de imagen
+                        document.querySelector('.tab[data-tab="image"]').click();
+                        // Establecer la imagen seleccionada en el input del formulario
+                        document.getElementById('imagenPerfil').files = fileInput.files;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

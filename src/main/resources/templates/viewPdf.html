@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalles del Artículo</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            transition: all 0.3s ease;
+        }
+
+        /* Modo Oscuro */
+        body.dark-mode {
+            background: #1a1a2e !important;
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .bg-light {
+            background: #1a1a2e !important;
+        }
+
+        body.dark-mode .navbar-dark {
+            background: rgba(30, 30, 30, 0.9) !important;
+            border-bottom: 1px solid rgba(187, 134, 252, 0.2);
+        }
+
+        body.dark-mode .bg-primary {
+            background: linear-gradient(135deg, #bb86fc, #6200ea) !important;
+        }
+
+        body.dark-mode .article-header {
+            background: linear-gradient(135deg, #bb86fc 0%, #6200ea 100%) !important;
+        }
+
+        body.dark-mode .article-content {
+            background: rgba(255, 255, 255, 0.05) !important;
+            border: 1px solid rgba(187, 134, 252, 0.2);
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .article-meta {
+            background: rgba(255, 255, 255, 0.05) !important;
+            border: 1px solid rgba(187, 134, 252, 0.2);
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .bg-light {
+            background: rgba(255, 255, 255, 0.05) !important;
+        }
+
+        body.dark-mode .text-muted {
+            color: #b0b0b0 !important;
+        }
+
+        body.dark-mode .btn-primary {
+            background: linear-gradient(135deg, #bb86fc, #6200ea) !important;
+            border: none;
+        }
+
+        body.dark-mode .btn-success {
+            background: linear-gradient(135deg, #4caf50, #2e7d32) !important;
+            border: none;
+        }
+
+        body.dark-mode .btn-secondary {
+            background: #455a64 !important;
+            color: #e0e0e0;
+            border: none;
+        }
+
+        body.dark-mode .btn-outline-primary {
+            border-color: #bb86fc !important;
+            color: #bb86fc !important;
+        }
+
+        body.dark-mode .btn-outline-primary:hover {
+            background: #bb86fc !important;
+            color: white !important;
+        }
+
+        body.dark-mode .btn-outline-secondary {
+            border-color: #888 !important;
+            color: #888 !important;
+        }
+
+        body.dark-mode .btn-outline-secondary:hover {
+            background: #888 !important;
+            color: white !important;
+        }
+
+        body.dark-mode .badge-custom {
+            background: linear-gradient(45deg, #bb86fc, #6200ea) !important;
+        }
+
+        body.dark-mode .alert-success {
+            background: rgba(76, 175, 80, 0.2) !important;
+            border: 1px solid rgba(76, 175, 80, 0.4);
+            color: #81c784 !important;
+        }
+
+        body.dark-mode .alert-danger {
+            background: rgba(244, 67, 54, 0.2) !important;
+            border: 1px solid rgba(244, 67, 54, 0.4);
+            color: #ff6b6b !important;
+        }
+
+        body.dark-mode .alert-debug {
+            background: rgba(187, 134, 252, 0.2) !important;
+            border: 1px solid rgba(187, 134, 252, 0.4);
+            color: #bb86fc !important;
+        }
+
+        body.dark-mode .table {
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .table td {
+            border-color: rgba(187, 134, 252, 0.1);
+        }
+
+        body.dark-mode .nav-link {
+            color: rgba(255, 255, 255, 0.9) !important;
+        }
+
+        body.dark-mode .nav-link:hover {
+            color: #bb86fc !important;
+        }
+
+        body.dark-mode .navbar-brand {
+            color: #e0e0e0 !important;
+        }
+
+        .article-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+        }
+        
+        .article-content {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .article-meta {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .btn-favorite {
+            transition: all 0.3s ease;
+        }
+        
+        .btn-favorite:hover {
+            transform: translateY(-2px);
+        }
+        
+        .abstract-content {
+            text-align: justify;
+            line-height: 1.8;
+            font-size: 1.1rem;
+        }
+        
+        .badge-custom {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+        
+        .alert-debug {
+            background-color: #e3f2fd;
+            border: 1px solid #2196f3;
+            color: #1976d2;
+        }
+
+        /* Botón de modo oscuro */
+        .dark-mode-toggle {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: white;
+            font-size: 1.2rem;
+            z-index: 1000;
+        }
+
+        .dark-mode-toggle:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+
+        body.dark-mode .dark-mode-toggle {
+            background: rgba(187, 134, 252, 0.2);
+            border: 1px solid rgba(187, 134, 252, 0.3);
+            color: #bb86fc;
+        }
+
+        body.dark-mode .dark-mode-toggle:hover {
+            background: rgba(187, 134, 252, 0.3);
+        }
+    </style>
+</head>
+<body class="bg-light">
+    
+    <!-- Botón de modo oscuro -->
+    <div class="dark-mode-toggle" id="darkModeToggle">
+        <i class="fas fa-moon" id="darkModeIcon"></i>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/articulos">
+                <i class="fas fa-book-open me-2"></i>
+                Sistema de Artículos
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="/articulos">
+                    <i class="fas fa-search me-1"></i>
+                    Buscar
+                </a>
+                <a class="nav-link" href="/articulos/favoritos">
+                    <i class="fas fa-heart me-1"></i>
+                    Favoritos
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        
+        <!-- Mensajes de Éxito/Error -->
+        <div th:if="${mensaje}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i>
+            <span th:text="${mensaje}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        
+        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            <span th:text="${error}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <!-- Debug: Mostrar ID si no hay artículo -->
+        <div th:if="${id != null and articulo == null}" class="alert alert-debug" role="alert">
+            <h5><i class="fas fa-bug me-2"></i>Información de Debug</h5>
+            <p><strong>ID del artículo:</strong> <span th:text="${id}"></span></p>
+            <p><strong>Problema:</strong> El artículo no se encontró en el cache del sistema.</p>
+            <p><strong>Solución:</strong> <a href="/articulos" class="alert-link">Volver a buscar el artículo</a></p>
+        </div>
+
+        <!-- Contenido Principal del Artículo -->
+        <div th:if="${articulo != null}">
+            
+            <!-- Header del Artículo -->
+            <div class="article-header">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-md-10">
+                            <h1 class="display-5 fw-bold mb-3" th:text="${articulo.titulo}">Título del Artículo</h1>
+                            <p class="lead mb-0">
+                                <i class="fas fa-user-edit me-2"></i>
+                                <span th:text="${articulo.autores ?: 'Autor no especificado'}">Autores</span>
+                            </p>
+                        </div>
+                        <div class="col-md-2 text-end">
+                            <div class="d-grid gap-2">
+                                <!-- Botón Agregar/Quitar de Favoritos -->
+                                <form th:if="${!articulo.esFavorito}" 
+                                      th:action="@{/articulos/favorito/agregar/{id}(id=${articulo.id})}" 
+                                      method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-outline-light btn-favorite">
+                                        <i class="far fa-heart me-2"></i>
+                                        Agregar a Favoritos
+                                    </button>
+                                </form>
+                                
+                                <form th:if="${articulo.esFavorito}" 
+                                      th:action="@{/articulos/favorito/eliminar/{id}(id=${articulo.id})}" 
+                                      method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-light btn-favorite">
+                                        <i class="fas fa-heart text-danger me-2"></i>
+                                        Quitar de Favoritos
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Información Meta del Artículo -->
+            <div class="article-meta">
+                <div class="row">
+                    <div class="col-md-3">
+                        <h6 class="text-muted mb-1">
+                            <i class="fas fa-calendar-alt me-2"></i>
+                            Año de Publicación
+                        </h6>
+                        <p class="mb-0 fw-bold" th:text="${articulo.anio ?: 'N/A'}">2023</p>
+                    </div>
+                    <div class="col-md-3">
+                        <h6 class="text-muted mb-1">
+                            <i class="fas fa-tag me-2"></i>
+                            Categoría
+                        </h6>
+                        <span class="badge-custom" th:text="${articulo.categoria ?: 'Artículo Académico'}">Categoría</span>
+                    </div>
+                    <div class="col-md-3" th:if="${articulo.puntuacion != null and articulo.puntuacion > 0}">
+                        <h6 class="text-muted mb-1">
+                            <i class="fas fa-star me-2"></i>
+                            Puntuación
+                        </h6>
+                        <p class="mb-0 fw-bold">
+                            <span th:text="${#numbers.formatDecimal(articulo.puntuacion, 1, 2)}">0.00</span>
+                            <small class="text-muted">/100</small>
+                        </p>
+                    </div>
+                    <div class="col-md-3" th:if="${articulo.doi != null and !#strings.isEmpty(articulo.doi)}">
+                        <h6 class="text-muted mb-1">
+                            <i class="fas fa-link me-2"></i>
+                            DOI
+                        </h6>
+                        <p class="mb-0">
+                            <a th:href="'https://doi.org/' + ${articulo.doi}" 
+                               target="_blank" 
+                               class="text-decoration-none"
+                               th:text="${articulo.doi}">
+                               DOI Link
+                            </a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contenido Principal -->
+            <div class="article-content">
+                
+                <!-- Resumen/Abstract -->
+                <div th:if="${articulo.contenido != null and !#strings.isEmpty(articulo.contenido)}">
+                    <h3 class="mb-4">
+                        <i class="fas fa-align-left me-2 text-primary"></i>
+                        Resumen
+                    </h3>
+                    <div class="abstract-content">
+                        <p th:text="${articulo.contenido}">Contenido del artículo...</p>
+                    </div>
+                    <hr class="my-4">
+                </div>
+                
+                <!-- Información Adicional -->
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5 class="mb-3">
+                            <i class="fas fa-info-circle me-2 text-info"></i>
+                            Información del Artículo
+                        </h5>
+                        <table class="table table-borderless">
+                            <tr>
+                                <td class="fw-bold text-muted">ID:</td>
+                                <td th:text="${articulo.id}">123456</td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold text-muted">Título:</td>
+                                <td th:text="${articulo.titulo}">Título completo</td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold text-muted">Autores:</td>
+                                <td th:text="${articulo.autores ?: 'No especificado'}">Lista de autores</td>
+                            </tr>
+                            <tr th:if="${articulo.anio != null}">
+                                <td class="fw-bold text-muted">Año:</td>
+                                <td th:text="${articulo.anio}">2023</td>
+                            </tr>
+                        </table>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <h5 class="mb-3">
+                            <i class="fas fa-external-link-alt me-2 text-success"></i>
+                            Enlaces y Recursos
+                        </h5>
+                        
+                        <!-- Enlace al Artículo Original -->
+                        <div th:if="${articulo.url != null and !#strings.isEmpty(articulo.url)}" class="mb-3">
+                            <a th:href="${articulo.url}" 
+                               target="_blank" 
+                               class="btn btn-success btn-lg w-100">
+                                <i class="fas fa-file-pdf me-2"></i>
+                                Ver Artículo Completo
+                            </a>
+                        </div>
+                        
+                        <!-- DOI Link -->
+                        <div th:if="${articulo.doi != null and !#strings.isEmpty(articulo.doi)}" class="mb-3">
+                            <a th:href="'https://doi.org/' + ${articulo.doi}" 
+                               target="_blank" 
+                               class="btn btn-outline-primary w-100">
+                                <i class="fas fa-link me-2"></i>
+                                Acceder vía DOI
+                            </a>
+                        </div>
+                        
+                        <!-- Google Scholar -->
+                        <div class="mb-3">
+                            <a th:href="'https://scholar.google.com/scholar?q=' + ${#strings.replace(articulo.titulo, ' ', '+')}" 
+                               target="_blank" 
+                               class="btn btn-outline-secondary w-100">
+                                <i class="fas fa-graduation-cap me-2"></i>
+                                Buscar en Google Scholar
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botones de Acción -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <a href="/articulos" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>
+                    Volver a Búsqueda
+                </a>
+                
+                <div>
+                    <a href="/articulos/favoritos" class="btn btn-outline-primary me-2">
+                        <i class="fas fa-heart me-2"></i>
+                        Ver Favoritos
+                    </a>
+                    
+                    <button onclick="window.print()" class="btn btn-outline-secondary">
+                        <i class="fas fa-print me-2"></i>
+                        Imprimir
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Si no hay artículo y tampoco hay ID -->
+        <div th:if="${articulo == null and id == null}" class="text-center py-5">
+            <div class="mb-4">
+                <i class="fas fa-search fa-4x text-muted"></i>
+            </div>
+            <h3 class="text-muted mb-3">No se encontró el artículo</h3>
+            <p class="text-muted mb-4">El artículo que buscas no está disponible.</p>
+            <a href="/articulos" class="btn btn-primary">
+                <i class="fas fa-search me-2"></i>
+                Buscar Artículos
+            </a>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Modo oscuro
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        const darkModeIcon = document.getElementById('darkModeIcon');
+        const body = document.body;
+
+        // Verificar preferencia guardada
+        const isDarkMode = localStorage.getItem('darkMode') === 'true';
+        if (isDarkMode) {
+            body.classList.add('dark-mode');
+            darkModeIcon.classList.remove('fa-moon');
+            darkModeIcon.classList.add('fa-sun');
+        }
+
+        darkModeToggle.addEventListener('click', () => {
+            body.classList.toggle('dark-mode');
+            const isDark = body.classList.contains('dark-mode');
+            
+            // Cambiar icono
+            if (isDark) {
+                darkModeIcon.classList.remove('fa-moon');
+                darkModeIcon.classList.add('fa-sun');
+            } else {
+                darkModeIcon.classList.remove('fa-sun');
+                darkModeIcon.classList.add('fa-moon');
+            }
+            
+            // Guardar preferencia
+            localStorage.setItem('darkMode', isDark);
+        });
+
+        // Script para debug
+        console.log('=== DEBUG VIEWPDF ===');
+        console.log('ID del artículo:', /*[[${id}]]*/ 'null');
+        console.log('Artículo presente:', /*[[${articulo != null}]]*/ false);
+        
+        /*[# th:if="${articulo != null}"]*/
+        console.log('Datos del artículo:', {
+            id: /*[[${articulo.id}]]*/ 'null',
+            titulo: /*[[${articulo.titulo}]]*/ 'null',
+            autores: /*[[${articulo.autores}]]*/ 'null',
+            esFavorito: /*[[${articulo.esFavorito}]]*/ false
+        });
+        /*[/]*/
+        
+        // Auto-dismiss alerts after 5 seconds
+        setTimeout(function() {
+            var alerts = document.querySelectorAll('.alert-dismissible');
+            alerts.forEach(function(alert) {
+                var bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            });
+        }, 5000);
+    </script>
+</body>
+</html>
