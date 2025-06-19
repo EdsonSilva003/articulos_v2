@@ -6,7 +6,6 @@
     <title>Búsqueda de Artículos - Sistema de Recomendaciones</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
     <style>
-        /* [Mantener los estilos CSS existentes del archivo articulos.html] */
         * {
             margin: 0;
             padding: 0;
@@ -20,6 +19,159 @@
             transition: all 0.3s ease;
         }
 
+        /* ===== MODO OSCURO CORREGIDO ===== */
+        body.dark-mode {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        }
+
+        body.dark-mode .header {
+            background: rgba(30, 30, 30, 0.9);
+            border-bottom: 1px solid rgba(187, 134, 252, 0.2);
+        }
+
+        body.dark-mode .header h1 {
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .home-button {
+            background: rgba(187, 134, 252, 0.2);
+            border: 1px solid rgba(187, 134, 252, 0.3);
+            color: #bb86fc;
+        }
+
+        body.dark-mode .home-button:hover {
+            background: rgba(187, 134, 252, 0.3);
+            color: #bb86fc;
+        }
+
+        body.dark-mode .container {
+            background: rgba(30, 30, 30, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        body.dark-mode .search-section {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(187, 134, 252, 0.2);
+        }
+
+        body.dark-mode .search-title {
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .form-group label {
+            color: #b0b0b0;
+        }
+
+        body.dark-mode .form-input {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(187, 134, 252, 0.3);
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .form-input:focus {
+            border-color: #bb86fc;
+            box-shadow: 0 0 0 3px rgba(187, 134, 252, 0.2);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        body.dark-mode .form-input::placeholder {
+            color: #666;
+        }
+
+        body.dark-mode .input-container i {
+            color: #bb86fc;
+        }
+
+        body.dark-mode .radio-option {
+            background: rgba(187, 134, 252, 0.1);
+            border: 1px solid rgba(187, 134, 252, 0.2);
+            color: #b0b0b0;
+        }
+
+        body.dark-mode .radio-option:hover {
+            background: rgba(187, 134, 252, 0.15);
+        }
+
+        body.dark-mode .search-button {
+            background: linear-gradient(135deg, #bb86fc, #6200ea);
+            box-shadow: 0 8px 25px rgba(187, 134, 252, 0.3);
+        }
+
+        body.dark-mode .search-button:hover {
+            box-shadow: 0 15px 35px rgba(187, 134, 252, 0.4);
+        }
+
+        body.dark-mode .article-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(187, 134, 252, 0.2);
+        }
+
+        body.dark-mode .article-title {
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .article-author,
+        body.dark-mode .article-year,
+        body.dark-mode .article-description {
+            color: #b0b0b0;
+        }
+
+        body.dark-mode .article-category {
+            background: rgba(187, 134, 252, 0.2);
+            color: #bb86fc;
+        }
+
+        body.dark-mode .favorite-button {
+            background: linear-gradient(135deg, #bb86fc, #6200ea);
+            box-shadow: 0 4px 15px rgba(187, 134, 252, 0.3);
+        }
+
+        body.dark-mode .favorite-button:hover {
+            box-shadow: 0 8px 25px rgba(187, 134, 252, 0.4);
+        }
+
+        body.dark-mode .favorite-button.removed {
+            background: #455a64;
+            box-shadow: 0 4px 15px rgba(69, 90, 100, 0.3);
+        }
+
+        body.dark-mode .no-results {
+            background: rgba(255, 255, 255, 0.05);
+            color: #b0b0b0;
+            border: 1px solid rgba(187, 134, 252, 0.1);
+        }
+
+        body.dark-mode .no-results h3 {
+            color: #bb86fc;
+        }
+
+        body.dark-mode .favorites-link {
+            background: rgba(187, 134, 252, 0.05);
+            border: 1px solid rgba(187, 134, 252, 0.1);
+        }
+
+        body.dark-mode .favorites-link a {
+            background: linear-gradient(135deg, #bb86fc, #6200ea);
+            box-shadow: 0 8px 25px rgba(187, 134, 252, 0.3);
+        }
+
+        body.dark-mode .favorites-link a:hover {
+            box-shadow: 0 15px 35px rgba(187, 134, 252, 0.4);
+        }
+
+        body.dark-mode .mensaje-exito {
+            background: rgba(76, 175, 80, 0.2);
+            border: 1px solid rgba(76, 175, 80, 0.4);
+            color: #81c784;
+        }
+
+        body.dark-mode .mensaje-error {
+            background: rgba(244, 67, 54, 0.2);
+            border: 1px solid rgba(244, 67, 54, 0.4);
+            color: #ff6b6b;
+        }
+
+        /* ===== ESTILOS PRINCIPALES ===== */
         .header {
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
@@ -79,6 +231,7 @@
             margin-top: 2rem;
             margin-bottom: 2rem;
             border: 1px solid rgba(255, 255, 255, 0.3);
+            animation: fadeInUp 0.6s ease-out;
         }
 
         .search-section {
@@ -409,6 +562,43 @@
             to { transform: rotate(360deg); }
         }
 
+        /* Botón de modo oscuro */
+        .dark-mode-toggle {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: white;
+            font-size: 1.2rem;
+            z-index: 1000;
+            border: none;
+        }
+
+        .dark-mode-toggle:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+
+        body.dark-mode .dark-mode-toggle {
+            background: rgba(187, 134, 252, 0.2);
+            border: 1px solid rgba(187, 134, 252, 0.3);
+            color: #bb86fc;
+        }
+
+        body.dark-mode .dark-mode-toggle:hover {
+            background: rgba(187, 134, 252, 0.3);
+        }
+
         /* Responsive Design */
         @media (max-width: 768px) {
             .container {
@@ -428,9 +618,26 @@
                 gap: 15px;
             }
         }
+
+        /* Animaciones */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
     </style>
 </head>
 <body>
+    <!-- Botón de modo oscuro -->
+    <button class="dark-mode-toggle" id="darkModeToggle">
+        <i class="fas fa-moon" id="darkModeIcon"></i>
+    </button>
+
     <div class="header">
         <div class="header-content">
             <a href="/home" class="home-button">
@@ -609,6 +816,39 @@
     </div>
 
     <script>
+        // ===== MODO OSCURO CORREGIDO =====
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        const darkModeIcon = document.getElementById('darkModeIcon');
+        const body = document.body;
+
+        // Función para aplicar modo oscuro
+        function applyDarkMode(isDark) {
+            if (isDark) {
+                body.classList.add('dark-mode');
+                darkModeIcon.classList.remove('fa-moon');
+                darkModeIcon.classList.add('fa-sun');
+            } else {
+                body.classList.remove('dark-mode');
+                darkModeIcon.classList.remove('fa-sun');
+                darkModeIcon.classList.add('fa-moon');
+            }
+        }
+
+        // Verificar preferencia guardada al cargar
+        const savedDarkMode = localStorage.getItem('darkMode');
+        if (savedDarkMode !== null) {
+            applyDarkMode(savedDarkMode === 'true');
+        }
+
+        // Toggle del modo oscuro
+        darkModeToggle.addEventListener('click', (e) => {
+            e.preventDefault();
+            const isDark = !body.classList.contains('dark-mode');
+            applyDarkMode(isDark);
+            localStorage.setItem('darkMode', isDark);
+            console.log('🌙 Modo oscuro:', isDark ? 'ACTIVADO' : 'DESACTIVADO');
+        });
+
         // Script para manejar el envío de formularios de favoritos
         document.addEventListener('DOMContentLoaded', function() {
             console.log('🚀 Script de favoritos cargado');
@@ -670,12 +910,17 @@
                         searchButton.innerHTML = '<div class="loading-spinner"></div> Buscando...';
                         
                         setTimeout(function() {
-                            searchButton.disabled = false;
-                            searchButton.innerHTML = '<i class="fas fa-search"></i> Buscar';
+                            if (searchButton.disabled) {
+                                searchButton.disabled = false;
+                                searchButton.innerHTML = '<i class="fas fa-search"></i> Buscar';
+                            }
                         }, 5000);
                     }
                 });
             }
+
+            // Verificar modo oscuro al cargar la página
+            console.log('🌙 Estado inicial modo oscuro:', body.classList.contains('dark-mode'));
         });
         
         // Debug: Mostrar información de la página
@@ -683,6 +928,14 @@
         console.log('- Artículos en página:', document.querySelectorAll('.article-card').length);
         console.log('- Formularios de favoritos:', document.querySelectorAll('.favorite-form').length);
         console.log('- URL actual:', window.location.href);
+        console.log('- Modo oscuro guardado:', localStorage.getItem('darkMode'));
+
+        // Efecto de parallax suave en el fondo
+        document.addEventListener('mousemove', (e) => {
+            const moveX = (e.clientX * -1 / 15);
+            const moveY = (e.clientY * -1 / 15);
+            document.body.style.backgroundPosition = `${moveX}px ${moveY}px`;
+        });
     </script>
 </body>
 </html>

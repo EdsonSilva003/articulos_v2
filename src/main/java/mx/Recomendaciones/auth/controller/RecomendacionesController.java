@@ -13,6 +13,7 @@ import mx.Recomendaciones.auth.repository.UsuarioRepository;
 import mx.Recomendaciones.auth.entity.ArticuloFavorito;
 import mx.Recomendaciones.auth.repository.ArticuloFavoritoRepository;
 import mx.Recomendaciones.auth.service.CustomUserDetails;
+import mx.Recomendaciones.auth.service.RecommendationService;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -20,7 +21,6 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.function.Function;
 
 @Controller
 @RequestMapping("/recomendaciones")
@@ -31,6 +31,9 @@ public class RecomendacionesController {
     
     @Autowired
     private ArticuloFavoritoRepository favoritoRepository;
+    
+    @Autowired
+    private RecommendationService recommendationService;
 
     @GetMapping
     public String mostrarRecomendaciones(Model model, Authentication authentication) {
@@ -51,12 +54,12 @@ public class RecomendacionesController {
             model.addAttribute("usuario", username);
             System.out.println("Username: " + username);
             
-            // Obtener favoritos del usuario para generar recomendaciones basadas en sus intereses
+            // Obtener favoritos del usuario para contexto
             List<ArticuloFavorito> favoritos = favoritoRepository.findAllByUsuarioIdOrderByFechaGuardadoDesc(usuarioId);
             System.out.println("Favoritos encontrados: " + favoritos.size());
             
-            // Generar recomendaciones (simuladas pero basadas en favoritos)
-            List<Map<String, Object>> recomendaciones = generarRecomendacionesPersonalizadas(favoritos, usuarioId);
+            // **USAR EL NUEVO SERVICIO DE RECOMENDACIONES**
+            List<Map<String, Object>> recomendaciones = recommendationService.generarRecomendacionesPersonalizadas(usuarioId);
             model.addAttribute("recomendaciones", recomendaciones);
             
             // Convertir recomendaciones a lista de artículos para la plantilla
@@ -72,16 +75,30 @@ public class RecomendacionesController {
                     articulo.put("url", rec.get("url"));
                     articulo.put("scoreRecomendacion", rec.get("compatibilidad"));
                     articulo.put("esFavorito", false); // Las recomendaciones inicialmente no son favoritas
-                    articulo.put("razonRecomendacion", "Recomendado basado en tus favoritos");
+                    articulo.put("razonRecomendacion", rec.get("razonRecomendacion"));
                     return articulo;
                 })
                 .collect(Collectors.toList());
             
             model.addAttribute("articulos", articulos);
             
-            // Estadísticas
+            // Estadísticas mejoradas
             model.addAttribute("totalFavoritos", favoritos.size());
             model.addAttribute("totalRecomendaciones", recomendaciones.size());
+            
+            // Agregar tipo de recomendación basado en el perfil del usuario
+            String tipoRecomendacion = favoritos.isEmpty() ? 
+                "Recomendaciones para comenzar" : 
+                "Recomendaciones personalizadas basadas en tus " + favoritos.size() + " favoritos";
+            model.addAttribute("tipoRecomendacion", tipoRecomendacion);
+            
+            // Información adicional para debug
+            model.addAttribute("debug", Map.of(
+                "usuarioId", usuarioId,
+                "cantidadFavoritos", favoritos.size(),
+                "cantidadRecomendaciones", recomendaciones.size(),
+                "tipoUsuario", favoritos.isEmpty() ? "NUEVO" : "EXPERIMENTADO"
+            ));
             
             System.out.println("✅ Datos cargados correctamente para recomendaciones");
             
@@ -89,127 +106,15 @@ public class RecomendacionesController {
             System.err.println("❌ Error al cargar recomendaciones: " + e.getMessage());
             e.printStackTrace();
             model.addAttribute("error", "Error al cargar las recomendaciones: " + e.getMessage());
+            
+            // Proporcionar datos mínimos para evitar errores en la vista
+            model.addAttribute("totalFavoritos", 0);
+            model.addAttribute("totalRecomendaciones", 0);
+            model.addAttribute("articulos", new ArrayList<>());
+            model.addAttribute("recomendaciones", new ArrayList<>());
         }
         
         return "recomendaciones";
-    }
-    
-    /**
-     * Genera recomendaciones basadas en los favoritos del usuario
-     */
-    private List<Map<String, Object>> generarRecomendacionesPersonalizadas(List<ArticuloFavorito> favoritos, Long usuarioId) {
-        List<Map<String, Object>> recomendaciones = new ArrayList<>();
-        
-        try {
-            System.out.println("Generando recomendaciones basadas en " + favoritos.size() + " favoritos...");
-            
-            // Analizar categorías favoritas del usuario
-            Map<String, Long> categoriasFavoritas = favoritos.stream()
-                .filter(fav -> fav.getCategoria() != null)
-                .collect(Collectors.groupingBy(
-                    ArticuloFavorito::getCategoria,
-                    Collectors.counting()
-                ));
-            
-            String categoriaPrincipal = categoriasFavoritas.entrySet().stream()
-                .max(Map.Entry.comparingByValue())
-                .map(Map.Entry::getKey)
-                .orElse("Ciencias de la Computación");
-            
-            System.out.println("Categoría principal del usuario: " + categoriaPrincipal);
-            
-            // Recomendaciones base personalizadas
-            String[][] recomendacionesBase = {
-                {
-                    "Inteligencia Artificial en " + categoriaPrincipal, 
-                    "Investigación", 
-                    "Un análisis profundo sobre cómo la IA está transformando " + categoriaPrincipal.toLowerCase() + ".",
-                    "fa-brain",
-                    "95",
-                    "https://example.com/ai-" + categoriaPrincipal.toLowerCase().replace(" ", "-")
-                },
-                {
-                    "Machine Learning para " + categoriaPrincipal, 
-                    "Artículo Científico", 
-                    "Técnicas avanzadas de aprendizaje automático aplicadas a " + categoriaPrincipal.toLowerCase() + ".",
-                    "fa-robot",
-                    "92",
-                    "https://example.com/ml-" + categoriaPrincipal.toLowerCase().replace(" ", "-")
-                },
-                {
-                    "Metodologías Avanzadas en " + categoriaPrincipal, 
-                    "Paper de Investigación", 
-                    "Nuevas metodologías y enfoques innovadores en el campo de " + categoriaPrincipal.toLowerCase() + ".",
-                    "fa-flask",
-                    "88",
-                    "https://example.com/metodologias-" + categoriaPrincipal.toLowerCase().replace(" ", "-")
-                },
-                {
-                    "Tendencias Futuras en " + categoriaPrincipal, 
-                    "Estudio de Caso", 
-                    "Análisis de las tendencias emergentes y el futuro de " + categoriaPrincipal.toLowerCase() + ".",
-                    "fa-chart-line",
-                    "85",
-                    "https://example.com/tendencias-" + categoriaPrincipal.toLowerCase().replace(" ", "-")
-                },
-                {
-                    "Análisis de Big Data en " + categoriaPrincipal, 
-                    "Artículo Técnico", 
-                    "Metodologías para el procesamiento y análisis de grandes volúmenes de datos en " + categoriaPrincipal.toLowerCase() + ".",
-                    "fa-database",
-                    "82",
-                    "https://example.com/bigdata-" + categoriaPrincipal.toLowerCase().replace(" ", "-")
-                },
-                {
-                    "Aplicaciones Prácticas en " + categoriaPrincipal, 
-                    "Guía Práctica", 
-                    "Casos prácticos y aplicaciones reales de " + categoriaPrincipal.toLowerCase() + " en la industria.",
-                    "fa-tools",
-                    "79",
-                    "https://example.com/aplicaciones-" + categoriaPrincipal.toLowerCase().replace(" ", "-")
-                }
-            };
-            
-            // Crear las recomendaciones personalizadas
-            for (int i = 0; i < recomendacionesBase.length; i++) {
-                String[] rec = recomendacionesBase[i];
-                
-                Map<String, Object> recomendacion = new HashMap<>();
-                recomendacion.put("id", System.currentTimeMillis() + i + 1000); // IDs únicos para recomendaciones
-                recomendacion.put("titulo", rec[0]);
-                recomendacion.put("tipo", rec[1]);
-                recomendacion.put("descripcion", rec[2]);
-                recomendacion.put("icono", rec[3]);
-                recomendacion.put("compatibilidad", rec[4]);
-                recomendacion.put("url", rec[5]);
-                recomendacion.put("autores", "Dr. Sistema de Recomendaciones IA");
-                recomendacion.put("anio", "2024");
-                
-                // Ajustar puntuación basada en favoritos del usuario
-                int puntuacion = Integer.parseInt(rec[4]);
-                if (!favoritos.isEmpty()) {
-                    // Bonus si hay favoritos relacionados con la categoría
-                    long favoritosEnCategoria = favoritos.stream()
-                        .filter(fav -> categoriaPrincipal.equals(fav.getCategoria()))
-                        .count();
-                    
-                    if (favoritosEnCategoria > 0) {
-                        puntuacion = Math.min(99, puntuacion + (int)(favoritosEnCategoria * 2));
-                    }
-                }
-                recomendacion.put("compatibilidad", String.valueOf(puntuacion));
-                
-                recomendaciones.add(recomendacion);
-            }
-            
-            System.out.println("✅ " + recomendaciones.size() + " recomendaciones personalizadas generadas");
-            
-        } catch (Exception e) {
-            System.err.println("❌ Error generando recomendaciones: " + e.getMessage());
-            e.printStackTrace();
-        }
-        
-        return recomendaciones;
     }
     
     /**
