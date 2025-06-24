@@ -1,8 +1,11 @@
 package mx.Recomendaciones.auth.config;
 
+import mx.Recomendaciones.auth.service.CustomUserDetailsService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -10,11 +13,15 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
+
+    @Autowired
+    private CustomUserDetailsService userDetailsService;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -27,6 +34,7 @@ public class SecurityConfig {
                 
                 // ========== RECURSOS ESTÁTICOS (Sin autenticación) ==========
                 .requestMatchers("/css/**", "/js/**", "/images/**", "/fonts/**").permitAll()
+                .requestMatchers("/static/**", "/webjars/**").permitAll()
                 
                 // ========== PÁGINAS PÚBLICAS (Sin autenticación) ==========
                 .requestMatchers("/", "/register", "/login").permitAll()
@@ -40,6 +48,7 @@ public class SecurityConfig {
                 .requestMatchers("/perfil", "/perfil/**").authenticated()
                 .requestMatchers("/articulos", "/articulos/**").authenticated()
                 .requestMatchers("/usuario/imagen/**").authenticated()
+                .requestMatchers("/recomendaciones", "/recomendaciones/**").authenticated()
                 
                 // ========== CUALQUIER OTRA RUTA (Requiere autenticación) ==========
                 .anyRequest().authenticated()
@@ -68,9 +77,18 @@ public class SecurityConfig {
             )
             .exceptionHandling((exceptions) -> exceptions
                 .accessDeniedPage("/login?access-denied=true")  // Página de acceso denegado
-            );
+            )
+            .authenticationProvider(authenticationProvider()); // Configurar el provider personalizado
 
         return http.build();
+    }
+
+    @Bean
+    public DaoAuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+        authProvider.setUserDetailsService(userDetailsService);
+        authProvider.setPasswordEncoder(passwordEncoder());
+        return authProvider;
     }
 
     @Bean
